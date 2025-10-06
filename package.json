@@ -18,7 +18,10 @@
     "typecheck": "turbo run typecheck",
     "clean": "turbo run clean",
     "dev:web": "pnpm dev --filter web",
-    "build:web": "pnpm build --filter web"
+    "build:web": "pnpm build --filter web",
+    "dev:api": "pnpm dev --filter api",
+    "build:api": "pnpm build --filter api",
+    "start:api": "pnpm start --filter api"
   },
   "devDependencies": {
     "turbo": "^1.12.4",
