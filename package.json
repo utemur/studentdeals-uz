@@ -21,7 +21,8 @@
     "build:web": "pnpm build --filter web",
     "dev:api": "pnpm dev --filter api",
     "build:api": "pnpm build --filter api",
-    "start:api": "pnpm start --filter api"
+    "start:api": "pnpm start --filter api",
+    "prisma:studio": "pnpm --filter api dlx prisma studio"
   },
   "devDependencies": {
     "turbo": "^1.12.4",
