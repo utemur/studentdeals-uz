@@ -1,0 +1,23 @@
+{
+  "HomePage": {
+    "title": "Talabalar uchun eng yaxshi takliflar",
+    "description": "O'zbekiston talabalari uchun maxsus mahalliy va xalqaro brendlardan eksklyuziv chegirmalar va takliflarni toping",
+    "features": {
+      "students": {
+        "title": "Talabalar uchun",
+        "description": "Ovqat, o'yin-kulgi, ta'lim va boshqa narsalar uchun 50% gacha chegirma oling",
+        "cta": "Takliflarni topish"
+      },
+      "merchants": {
+        "title": "Biznes uchun",
+        "description": "Maxsus takliflar bilan talabalarni sodiq mijozlar sifatida jalb qiling",
+        "cta": "Hamkor bo'lish"
+      },
+      "community": {
+        "title": "Jamiyat",
+        "description": "Faol talabalar jamiyatiga qo'shiling va tajribangizni ulashing",
+        "cta": "Qo'shilish"
+      }
+    }
+  }
+}
