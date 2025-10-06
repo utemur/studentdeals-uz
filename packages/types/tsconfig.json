@@ -1,13 +1,11 @@
 {
-  "extends": "../config/typescript/base.json",
+  "extends": "../../packages/config/typescript/base.json",
   "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "src",
+    "composite": true,
     "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
+    "emitDeclarationOnly": true,
+    "outDir": "dist",
     "noEmit": false
   },
-  "include": ["src/**/*"],
-  "exclude": ["dist", "node_modules"]
+  "include": ["src/**/*"]
 }

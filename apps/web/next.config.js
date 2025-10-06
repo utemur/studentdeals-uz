@@ -11,6 +11,7 @@ const withNextIntl = require("next-intl/plugin")(
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  transpilePackages: ['@studentdeals/ui', '@studentdeals/types'],
   images: {
     domains: ["localhost"],
   },
