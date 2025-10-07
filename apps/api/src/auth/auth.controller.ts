@@ -1,59 +1,27 @@
-import { Controller, Post, Body, Get, UseGuards, Request } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { SignupDto } from './dto/signup.dto';
-import { SigninDto } from './dto/signin.dto';
-import { AuthResponseDto } from './dto/auth-response.dto';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
+import { JwtAuthGuard } from './jwt.guard';
+import { CurrentUser } from './current-user.decorator';
 
-@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly auth: AuthService) {}
 
-  @Post('signup')
-  @ApiOperation({ summary: 'Register a new user' })
-  @ApiResponse({
-    status: 201,
-    description: 'User successfully registered',
-    type: AuthResponseDto,
-  })
-  @ApiResponse({
-    status: 409,
-    description: 'User with this email already exists',
-  })
-  async signup(@Body() dto: SignupDto) {
-    return this.authService.signup(dto);
+  @Post('register')
+  register(@Body() dto: RegisterDto) {
+    return this.auth.register(dto);
   }
 
-  @Post('signin')
-  @ApiOperation({ summary: 'Sign in existing user' })
-  @ApiResponse({
-    status: 200,
-    description: 'User successfully signed in',
-    type: AuthResponseDto,
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Invalid credentials',
-  })
-  async signin(@Body() dto: SigninDto) {
-    return this.authService.signin(dto);
+  @Post('login')
+  login(@Body() dto: LoginDto) {
+    return this.auth.login(dto);
   }
 
-  @Get('me')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get current user profile' })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns current user profile',
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized',
-  })
-  async getProfile(@Request() req) {
-    return req.user;
+  @Get('me')
+  me(@CurrentUser() user?: { userId: string }) {
+    return this.auth.me(user!.userId);
   }
 }
