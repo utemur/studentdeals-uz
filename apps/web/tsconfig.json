@@ -3,9 +3,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@studentdeals/ui": ["../../packages/ui"],
-      "@studentdeals/types": ["../../packages/types"]
+      "@/*": ["src/*"]
     },
     "jsx": "preserve",
     "plugins": [
