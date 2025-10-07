@@ -1,22 +1,18 @@
 {
-  "extends": "../../packages/config/typescript/base.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@/components/*": ["src/components/*"],
-      "@/lib/*": ["src/lib/*"],
-      "@/types/*": ["src/types/*"]
+      "@studentdeals/ui": ["../../packages/ui"],
+      "@studentdeals/types": ["../../packages/types"]
     },
     "jsx": "preserve",
     "plugins": [
       {
         "name": "next"
       }
-    ],
-    "incremental": true,
-    "esModuleInterop": true,
-    "isolatedModules": true
+    ]
   },
   "include": [
     "next-env.d.ts",

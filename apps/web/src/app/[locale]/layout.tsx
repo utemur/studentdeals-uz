@@ -1,6 +1,6 @@
 import { Container } from "@studentdeals/ui";
 import { useTranslations } from "next-intl";
-import LanguageSwitcher from '../../components/LanguageSwitcher';
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function LocaleLayout({
   children,

@@ -1,12 +1,8 @@
 {
-  "extends": "../../packages/config/typescript/base.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "composite": true,
-    "declaration": true,
-    "emitDeclarationOnly": true,
-    "outDir": "dist",
-    "noEmit": false,
-    "jsx": "react-jsx"
+    "rootDir": ".",
+    "composite": false
   },
-  "include": ["src/**/*"]
+  "include": ["**/*.ts", "**/*.tsx"]
 }
