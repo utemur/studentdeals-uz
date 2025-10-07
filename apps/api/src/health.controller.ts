@@ -1,22 +1,23 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { PrismaClient } from '@prisma/client';
 
-@ApiTags('health')
-@Controller('health')
+@Controller()
 export class HealthController {
-  @Get()
-  @ApiOperation({ summary: 'Health check endpoint' })
-  @ApiResponse({ 
-    status: 200, 
-    description: 'Service is healthy',
-    schema: {
-      type: 'object',
-      properties: {
-        status: { type: 'string', example: 'ok' }
-      }
-    }
-  })
-  getHealth() {
-    return { status: 'ok' };
+  private prisma = new PrismaClient();
+
+  @Get('/')
+  root() {
+    return { ok: true, service: 'api' };
+  }
+
+  @Get('/health')
+  health() {
+    return { ok: true };
+  }
+
+  @Get('/health/db')
+  async healthDb() {
+    await this.prisma.$queryRaw`SELECT 1`;
+    return { ok: true, db: 'up' };
   }
 }
