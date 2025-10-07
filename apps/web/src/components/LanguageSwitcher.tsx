@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
 import { useLocale } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@studentdeals/ui";
 
-export function LanguageSwitcher() {
+export default function LanguageSwitcher() {
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
