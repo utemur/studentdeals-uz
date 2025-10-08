@@ -17,5 +17,18 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3001;
   await app.listen(Number(port), '0.0.0.0');
+  
+  return app;
 }
-bootstrap();
+
+// For local development
+if (require.main === module) {
+  bootstrap();
+}
+
+// For Vercel serverless
+export default async (req: any, res: any) => {
+  const app = await bootstrap();
+  const server = app.getHttpAdapter().getInstance();
+  return server(req, res);
+};
