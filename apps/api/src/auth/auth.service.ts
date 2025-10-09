@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, UnauthorizedException, NotFoundException } from '@nestjs/common';
 // import { PrismaService } from '../prisma.service';
-import { EmailService } from '../email.service';
+import { MailerService } from '../mailer.service';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import * as crypto from 'crypto';
@@ -14,7 +14,7 @@ const verificationTokens: Array<{ id: string; userId: string; token: string; exp
 
 @Injectable()
 export class AuthService {
-  constructor(private emailService: EmailService) {}
+  constructor(private mailerService: MailerService) {}
 
   private signAccessToken(userId: string, email: string): string {
     const secret = process.env.JWT_SECRET || 'dev_secret_change_me';
@@ -43,8 +43,9 @@ export class AuthService {
 
     // Generate verification token
     const token = this.generateVerificationToken();
+    const tokenTtlHours = Number(process.env.EMAIL_TOKEN_TTL_HOURS) || 24;
     const expiresAt = new Date();
-    expiresAt.setHours(expiresAt.getHours() + 24); // 24 hours TTL
+    expiresAt.setHours(expiresAt.getHours() + tokenTtlHours);
 
     verificationTokens.push({
       id: `token_${Date.now()}`,
@@ -54,9 +55,9 @@ export class AuthService {
       usedAt: null,
     });
 
-    // Send verification email
+    // Send verification email via Resend
     try {
-      await this.emailService.sendVerificationEmail(user.email, token);
+      await this.mailerService.sendVerificationEmail(user.email, token);
     } catch (error) {
       console.error('Failed to send verification email:', error);
       // Don't fail registration if email fails
