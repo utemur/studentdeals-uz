@@ -3,62 +3,89 @@
 import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@studentdeals/ui';
-import { register } from '@/app/actions/auth';
+import { api } from '@/lib/api';
+import Toast from '@/components/Toast';
+import type { RegisterRequest, RegisterResponse, AuthResponse } from '@studentdeals/types';
 
 export default function SignupPage() {
   const router = useRouter();
   const params = useParams();
   const locale = params.locale as string;
-  const [error, setError] = useState('');
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError('');
+    setToast(null);
     setLoading(true);
 
     try {
       const formData = new FormData(e.currentTarget);
-      formData.set('locale', locale);
-      
-      const result = await register(formData);
-      
-      if (result?.error) {
-        setError(result.error);
-        setLoading(false);
-        return;
-      }
+      const registerData: RegisterRequest = {
+        email: formData.get('email') as string,
+        password: formData.get('password') as string,
+      };
 
-      // Успешная регистрация и вход
-      router.push(`/${locale}`);
-      router.refresh();
+      // 1. Регистрация
+      const registerResponse = await api('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify(registerData),
+      }) as RegisterResponse;
+
+      if (registerResponse.id) {
+        // 2. Автоматический вход после регистрации
+        const loginResponse = await api('/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({
+            email: registerData.email,
+            password: registerData.password,
+          }),
+          credentials: 'include',
+        }) as AuthResponse;
+
+        if (loginResponse.accessToken) {
+          localStorage.setItem('access_token', loginResponse.accessToken);
+          
+          setToast({ message: 'Регистрация успешна! Добро пожаловать!', type: 'success' });
+          
+          // Редирект через 500ms
+          setTimeout(() => {
+            router.push(`/${locale}`);
+            router.refresh();
+          }, 500);
+        }
+      }
     } catch (err: any) {
-      setError(err.message || 'Ошибка регистрации');
+      setToast({ message: err.message || 'Ошибка регистрации', type: 'error' });
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Создать аккаунт
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Уже есть аккаунт?{' '}
-            <a href={`/${locale}/signin`} className="font-medium text-blue-600 hover:text-blue-500">
-              Войти
-            </a>
-          </p>
-        </div>
+    <>
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+      
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
+          <div>
+            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+              Создать аккаунт
+            </h2>
+            <p className="mt-2 text-center text-sm text-gray-600">
+              Уже есть аккаунт?{' '}
+              <a href={`/${locale}/signin`} className="font-medium text-blue-600 hover:text-blue-500">
+                Войти
+              </a>
+            </p>
+          </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <p className="text-sm text-red-800">{error}</p>
-            </div>
-          )}
+          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
 
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
@@ -102,7 +129,8 @@ export default function SignupPage() {
             </Button>
           </div>
         </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
