@@ -32,21 +32,36 @@ GET /api/docs
 
 ## Разработка
 
+### Dev запуск
+
 ```bash
 # Установка зависимостей
 pnpm install
 
-# Запуск в режиме разработки
-pnpm dev
+# Генерация Prisma Client
+pnpm --filter api run prisma:generate
 
+# Запуск в режиме разработки (с hot-reload)
+pnpm --filter api run start:dev
+```
+
+**API:** http://localhost:3001  
+**Health:** GET /health
+
+### Другие команды
+
+```bash
 # Сборка
-pnpm build
+pnpm --filter api build
 
 # Запуск продакшен сборки
-pnpm start
+pnpm --filter api start
 
-# Проверка типов
-pnpm typecheck
+# Prisma Studio (GUI для БД)
+pnpm --filter api run prisma:studio
+
+# Миграции БД
+pnpm --filter api run prisma:migrate
 ```
 
 ## Деплой на Render

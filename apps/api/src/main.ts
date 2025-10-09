@@ -25,10 +25,11 @@ async function bootstrap() {
   // Compression
   app.use(compression());
   
-  // CORS - Production only (studentdeals.uz domains)
+  // CORS - Allow production domains and localhost for development
   const allowedOrigins = [
     'https://studentdeals.uz',
     'https://www.studentdeals.uz',
+    /^https?:\/\/localhost:\d+$/, // localhost with any port
   ];
   
   app.enableCors({
@@ -36,14 +37,23 @@ async function bootstrap() {
       // Allow requests with no origin (like mobile apps or curl)
       if (!origin) return callback(null, true);
       
-      if (allowedOrigins.includes(origin)) {
+      // Check if origin matches allowed patterns
+      const isAllowed = allowedOrigins.some(allowed => {
+        if (typeof allowed === 'string') {
+          return origin === allowed;
+        }
+        // RegExp pattern
+        return allowed.test(origin);
+      });
+      
+      if (isAllowed) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
       }
     },
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-    credentials: false, // No credentials for security
+    credentials: true, // Allow credentials for auth
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   });
 

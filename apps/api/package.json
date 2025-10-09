@@ -6,7 +6,11 @@
     "postinstall": "prisma generate",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/main.js",
-    "start:prod": "node dist/main.js"
+    "start:prod": "node dist/main.js",
+    "start:dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules src/main.ts",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.20",
@@ -25,7 +29,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "compression": "^1.8.1",
-    "helmet": "^7.1.0",
+    "helmet": "^7.2.0",
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^7.0.9",
     "passport": "^0.7.0",
@@ -43,6 +47,7 @@
     "@types/nodemailer": "^7.0.2",
     "@types/passport-jwt": "^4.0.1",
     "prisma": "^6.16.3",
+    "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.0"
   }
 }
