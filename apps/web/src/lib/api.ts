@@ -18,52 +18,61 @@ export interface AuthResponse {
   };
 }
 
-export const api = {
+/**
+ * Universal API helper
+ * @param path - API endpoint path (e.g., '/health', '/auth/login')
+ * @param init - Fetch options
+ * @returns Response data as JSON
+ */
+export async function api(path: string, init?: RequestInit) {
+  const url = `${API_URL}${path}`;
+  
+  const response = await fetch(url, {
+    ...init,
+    headers: {
+      'Content-Type': 'application/json',
+      ...init?.headers,
+    },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    let errorMessage = `API Error: ${response.status} ${response.statusText}`;
+    
+    try {
+      const errorJson = JSON.parse(errorText);
+      errorMessage = errorJson.message || errorMessage;
+    } catch {
+      errorMessage = errorText || errorMessage;
+    }
+    
+    throw new Error(errorMessage);
+  }
+
+  return response.json();
+}
+
+// Legacy API methods (using new api helper)
+export const authApi = {
   async signup(data: SignupData): Promise<AuthResponse> {
-    const response = await fetch(`${API_URL}/auth/signup`, {
+    return api('/auth/signup', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(data),
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Signup failed');
-    }
-
-    return response.json();
   },
 
   async signin(data: SigninData): Promise<AuthResponse> {
-    const response = await fetch(`${API_URL}/auth/signin`, {
+    return api('/auth/signin', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(data),
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Signin failed');
-    }
-
-    return response.json();
   },
 
   async getProfile(token: string) {
-    const response = await fetch(`${API_URL}/auth/me`, {
+    return api('/auth/me', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch profile');
-    }
-
-    return response.json();
   },
 };

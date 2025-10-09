@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@studentdeals/ui';
-import { api } from '@/lib/api';
+import { authApi } from '@/lib/api';
 
 export default function SigninPage() {
   const router = useRouter();
@@ -18,7 +18,7 @@ export default function SigninPage() {
     setLoading(true);
 
     try {
-      const response = await api.signin({ email, password });
+      const response = await authApi.signin({ email, password });
       
       // Save token to localStorage
       localStorage.setItem('access_token', response.access_token);
