@@ -23,7 +23,8 @@ test.describe('Authentication', () => {
       // Check form elements by placeholder or name
       await expect(page.getByPlaceholder(/email/i)).toBeVisible();
       await expect(page.getByPlaceholder(/пароль/i)).toBeVisible();
-      await expect(page.getByRole('button', { name: /войти/i })).toBeVisible();
+      // Use more specific selector - button inside the form
+      await expect(page.locator('form').getByRole('button', { name: /войти/i })).toBeVisible();
     });
 
     test('should show error for invalid email', async ({ page }) => {
@@ -34,7 +35,7 @@ test.describe('Authentication', () => {
       await page.getByPlaceholder(/пароль/i).fill('password123');
       
       // Submit form
-      await page.getByRole('button', { name: /войти/i }).click();
+      await page.locator('form').getByRole('button', { name: /войти/i }).click();
       
       // Wait for validation or API call
       await page.waitForTimeout(2000);
@@ -54,7 +55,7 @@ test.describe('Authentication', () => {
       await page.getByPlaceholder(/пароль/i).fill('wrongpassword');
       
       // Submit form
-      await page.getByRole('button', { name: /войти/i }).click();
+      await page.locator('form').getByRole('button', { name: /войти/i }).click();
       
       // Wait for API call and error message
       await page.waitForTimeout(2000);
@@ -74,7 +75,7 @@ test.describe('Authentication', () => {
       await page.getByPlaceholder(/пароль/i).fill('password123');
       
       // Submit form
-      await page.getByRole('button', { name: /войти/i }).click();
+      await page.locator('form').getByRole('button', { name: /войти/i }).click();
       
       // Wait for navigation (success toast + redirect)
       await page.waitForTimeout(3000);
@@ -98,7 +99,8 @@ test.describe('Authentication', () => {
       // Check form elements by placeholder or name
       await expect(page.getByPlaceholder(/email/i)).toBeVisible();
       await expect(page.getByPlaceholder(/пароль/i)).toBeVisible();
-      await expect(page.getByRole('button', { name: /зарегистрироваться/i })).toBeVisible();
+      // Use more specific selector - button inside the form
+      await expect(page.locator('form').getByRole('button', { name: /зарегистрироваться/i })).toBeVisible();
     });
 
     test('should show error for invalid email', async ({ page }) => {
@@ -109,7 +111,7 @@ test.describe('Authentication', () => {
       await page.getByPlaceholder(/пароль/i).fill('password123');
       
       // Submit form
-      await page.getByRole('button', { name: /зарегистрироваться/i }).click();
+      await page.locator('form').getByRole('button', { name: /зарегистрироваться/i }).click();
       
       // Wait for validation or API call
       await page.waitForTimeout(2000);
@@ -129,7 +131,7 @@ test.describe('Authentication', () => {
       await page.getByPlaceholder(/пароль/i).fill('short');
       
       // Submit form
-      await page.getByRole('button', { name: /зарегистрироваться/i }).click();
+      await page.locator('form').getByRole('button', { name: /зарегистрироваться/i }).click();
       
       // Wait for API call
       await page.waitForTimeout(2000);
@@ -149,7 +151,7 @@ test.describe('Authentication', () => {
       await page.getByPlaceholder(/пароль/i).fill('password123');
       
       // Submit form
-      await page.getByRole('button', { name: /зарегистрироваться/i }).click();
+      await page.locator('form').getByRole('button', { name: /зарегистрироваться/i }).click();
       
       // Wait for API call
       await page.waitForTimeout(2000);
@@ -169,7 +171,7 @@ test.describe('Authentication', () => {
       await page.getByPlaceholder(/пароль/i).fill('password123');
       
       // Submit form
-      await page.getByRole('button', { name: /зарегистрироваться/i }).click();
+      await page.locator('form').getByRole('button', { name: /зарегистрироваться/i }).click();
       
       // Wait for navigation (success toast + redirect)
       await page.waitForTimeout(3000);
@@ -186,7 +188,7 @@ test.describe('Authentication', () => {
       // Check for Russian text
       await expect(page.getByText('Войти в аккаунт')).toBeVisible();
       await expect(page.getByPlaceholder(/пароль/i)).toBeVisible();
-      await expect(page.getByRole('button', { name: /войти/i })).toBeVisible();
+      await expect(page.locator('form').getByRole('button', { name: /войти/i })).toBeVisible();
     });
 
     test('signup page should have correct Russian translations', async ({ page }) => {
@@ -195,7 +197,7 @@ test.describe('Authentication', () => {
       // Check for Russian text
       await expect(page.getByText('Создать аккаунт')).toBeVisible();
       await expect(page.getByPlaceholder(/пароль/i)).toBeVisible();
-      await expect(page.getByRole('button', { name: /зарегистрироваться/i })).toBeVisible();
+      await expect(page.locator('form').getByRole('button', { name: /зарегистрироваться/i })).toBeVisible();
     });
 
     test('signin page should have correct Uzbek translations', async ({ page }) => {
