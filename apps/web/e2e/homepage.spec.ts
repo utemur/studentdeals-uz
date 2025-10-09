@@ -8,7 +8,7 @@ test.describe('Homepage', () => {
     await expect(page).toHaveTitle(/Student Deals/i);
     
     // Check Russian content
-    await expect(page.getByText('Скидки для студентов')).toBeVisible();
+    await expect(page.getByText('Лучшие предложения для студентов')).toBeVisible();
   });
 
   test('should load Uzbek homepage', async ({ page }) => {
@@ -25,55 +25,45 @@ test.describe('Homepage', () => {
   test('should switch language from Russian to Uzbek', async ({ page }) => {
     await page.goto('/ru');
     
-    // Find and click language switcher
-    const languageSwitcher = page.getByRole('combobox', { name: /язык|language/i })
-      .or(page.locator('select').filter({ hasText: /Русский|Uzbek/ }));
+    // Find and click UZ button
+    const uzButton = page.getByRole('button', { name: 'UZ' });
+    await expect(uzButton).toBeVisible();
+    await uzButton.click();
     
-    if (await languageSwitcher.count() > 0) {
-      await languageSwitcher.selectOption('uz');
-      
-      // Check URL changed
-      await expect(page).toHaveURL(/\/uz/);
-    }
+    // Check URL changed
+    await expect(page).toHaveURL(/\/uz/);
   });
 
   test('should switch language from Uzbek to Russian', async ({ page }) => {
     await page.goto('/uz');
     
-    // Find and click language switcher
-    const languageSwitcher = page.getByRole('combobox', { name: /til|language/i })
-      .or(page.locator('select').filter({ hasText: /Русский|Uzbek/ }));
+    // Find and click RU button
+    const ruButton = page.getByRole('button', { name: 'RU' });
+    await expect(ruButton).toBeVisible();
+    await ruButton.click();
     
-    if (await languageSwitcher.count() > 0) {
-      await languageSwitcher.selectOption('ru');
-      
-      // Check URL changed
-      await expect(page).toHaveURL(/\/ru/);
-    }
+    // Check URL changed
+    await expect(page).toHaveURL(/\/ru/);
   });
 
   test('should navigate to sign in page', async ({ page }) => {
     await page.goto('/ru');
     
-    // Find sign in link
-    const signInLink = page.getByRole('link', { name: /войти|sign in/i });
-    
-    if (await signInLink.count() > 0) {
-      await signInLink.click();
-      await expect(page).toHaveURL(/\/ru\/signin/);
-    }
+    // Find sign in button
+    const signInButton = page.getByRole('button', { name: 'Войти' });
+    await expect(signInButton).toBeVisible();
+    await signInButton.click();
+    await expect(page).toHaveURL(/\/ru\/signin/);
   });
 
   test('should navigate to sign up page', async ({ page }) => {
     await page.goto('/ru');
     
-    // Find sign up link
-    const signUpLink = page.getByRole('link', { name: /регистрация|зарегистрироваться|sign up/i });
-    
-    if (await signUpLink.count() > 0) {
-      await signUpLink.click();
-      await expect(page).toHaveURL(/\/ru\/signup/);
-    }
+    // Find sign up button
+    const signUpButton = page.getByRole('button', { name: 'Регистрация' });
+    await expect(signUpButton).toBeVisible();
+    await signUpButton.click();
+    await expect(page).toHaveURL(/\/ru\/signup/);
   });
 });
 
