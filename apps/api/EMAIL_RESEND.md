@@ -306,11 +306,11 @@ For StudentDeals.uz, free tier should be sufficient for initial launch.
 ## 🎯 Production Checklist
 
 - [x] Resend account created
-- [ ] Domain `studentdeals.uz` added and verified
-- [ ] DNS records (TXT, MX) configured
+- [x] Domain `studentdeals.uz` added and verified ✅
+- [x] DNS records (TXT, MX) configured ✅
 - [x] API key generated (`re_HXW7aXez...`)
 - [ ] `RESEND_API_KEY` added to Render
-- [ ] `EMAIL_FROM` uses verified domain
+- [x] `EMAIL_FROM` uses verified domain ✅
 - [ ] `APP_URL` points to production
 - [x] Test email sent successfully (local)
 - [ ] Verification flow tested end-to-end
