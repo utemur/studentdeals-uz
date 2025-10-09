@@ -305,14 +305,109 @@ For StudentDeals.uz, free tier should be sufficient for initial launch.
 
 ## 🎯 Production Checklist
 
-- [ ] Resend account created
+- [x] Resend account created
 - [ ] Domain `studentdeals.uz` added and verified
 - [ ] DNS records (TXT, MX) configured
-- [ ] API key generated
+- [x] API key generated (`re_HXW7aXez...`)
 - [ ] `RESEND_API_KEY` added to Render
 - [ ] `EMAIL_FROM` uses verified domain
 - [ ] `APP_URL` points to production
-- [ ] Test email sent successfully
+- [x] Test email sent successfully (local)
 - [ ] Verification flow tested end-to-end
 - [ ] Monitoring setup in Resend dashboard
+
+## 🚀 Next Steps for Production
+
+### 1. Verify Domain in Resend
+
+**Important:** Currently using API key, but emails from `noreply@studentdeals.uz` will be blocked until domain is verified.
+
+**Steps:**
+1. Go to [Resend Dashboard → Domains](https://resend.com/domains)
+2. Click **Add Domain** → Enter `studentdeals.uz`
+3. Add DNS records to your domain provider:
+
+```dns
+# Verification Record
+Type: TXT
+Name: @
+Value: resend-verify=<YOUR_VERIFICATION_CODE>
+TTL: 3600
+
+# Email Sending Records
+Type: MX
+Name: @
+Value: feedback-smtp.us-east-1.amazonses.com
+Priority: 10
+TTL: 3600
+
+Type: TXT
+Name: @
+Value: "v=spf1 include:amazonses.com ~all"
+TTL: 3600
+
+# DKIM Records (will be provided by Resend after domain added)
+Type: TXT
+Name: resend._domainkey
+Value: <PROVIDED_BY_RESEND>
+TTL: 3600
+```
+
+4. Wait for DNS propagation (5-30 minutes)
+5. Click **Verify Domain** in Resend dashboard
+
+### 2. Update Render Environment Variables
+
+Once domain is verified, update in Render:
+
+```bash
+# Render Dashboard → Your Service → Environment
+RESEND_API_KEY=re_HXW7aXez_8P1z8kH1Z5gRopsSv2GyZtZS
+EMAIL_FROM=StudentDeals <noreply@studentdeals.uz>
+APP_URL=https://studentdeals.uz
+EMAIL_TOKEN_TTL_HOURS=24
+```
+
+### 3. Test Production Email
+
+```bash
+# After deploying to Render
+curl -X POST https://studentdeals-uz.onrender.com/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"your-email@gmail.com","password":"TestPassword123!"}'
+
+# Check your inbox for verification email
+# Check Resend dashboard for delivery status
+```
+
+### 4. Monitor Delivery
+
+- [Resend Dashboard → Emails](https://resend.com/emails) - View all sent emails
+- [Resend Dashboard → Analytics](https://resend.com/analytics) - Delivery stats
+- Check bounce rates and spam reports regularly
+
+## ⚠️ Important Notes
+
+### Domain Verification Required
+
+**Without verified domain:**
+- ✅ API works in development (localhost)
+- ❌ Production emails will be rejected
+- ❌ Cannot use `noreply@studentdeals.uz` as sender
+
+**With verified domain:**
+- ✅ Production emails delivered
+- ✅ High deliverability rate
+- ✅ SPF/DKIM/DMARC protection
+- ✅ Professional sender reputation
+
+### Temporary Solution (Testing Only)
+
+If you need to test before domain verification:
+```bash
+# Use Resend's test domain (emails go to your Resend account email only)
+EMAIL_FROM="onboarding@resend.dev"
+```
+
+This will work immediately but only sends to your Resend account email.
 
