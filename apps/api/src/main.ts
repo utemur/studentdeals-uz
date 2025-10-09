@@ -63,10 +63,15 @@ async function bootstrap() {
   // Compression
   app.use(compression());
   
-  // CORS - Allow production domains and localhost for development
+  // CORS - Allow production, staging, and development domains
   const allowedOrigins = [
+    // Production
     'https://studentdeals.uz',
     'https://www.studentdeals.uz',
+    // Staging
+    'https://staging.studentdeals.uz',
+    'https://studentdeals-uz-staging.vercel.app',
+    // Development
     /^https?:\/\/localhost:\d+$/, // localhost with any port
   ];
   

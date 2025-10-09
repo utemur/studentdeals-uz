@@ -192,6 +192,158 @@ pnpm -w test --if-present
 pnpm -C apps/web build
 ```
 
+---
+
+## 🚀 Environments
+
+### Development (Local)
+
+**Frontend:**
+- URL: http://localhost:3000
+- Environment: `NEXT_PUBLIC_ENV=development`
+- API: http://localhost:3001 (auto-resolved)
+
+**Backend:**
+- URL: http://localhost:3001
+- Environment: `NODE_ENV=development`
+- Database: Local or Supabase dev
+
+**Commands:**
+```bash
+# Frontend
+cd apps/web
+pnpm dev
+
+# Backend
+cd apps/api
+pnpm run start:dev
+```
+
+---
+
+### Staging
+
+**Frontend:**
+- URL: https://staging.studentdeals.uz
+- Deployment: Vercel (staging branch)
+- Environment: `NEXT_PUBLIC_ENV=staging`
+- API: https://api-staging.studentdeals.uz (auto-resolved)
+
+**Backend:**
+- URL: https://api-staging.studentdeals.uz
+- Deployment: Render (staging service)
+- Environment: `NODE_ENV=staging`
+- Database: Staging database
+
+**Environment Variables (Vercel):**
+```bash
+NEXT_PUBLIC_ENV=staging
+# NEXT_PUBLIC_API_URL not needed - auto-resolved to https://api-staging.studentdeals.uz
+NEXT_PUBLIC_SENTRY_DSN=https://...@sentry.io/...
+SENTRY_ENVIRONMENT=staging
+```
+
+**Environment Variables (Render):**
+```bash
+NODE_ENV=staging
+DATABASE_URL=postgresql://...
+JWT_SECRET=<staging-secret>
+RESEND_API_KEY=re_...
+EMAIL_FROM=StudentDeals <noreply@studentdeals.uz>
+APP_URL=https://staging.studentdeals.uz
+SENTRY_DSN=https://...@sentry.io/...
+```
+
+**Deployment:**
+```bash
+# Frontend (Vercel)
+git push origin staging
+# Auto-deploys to https://staging.studentdeals.uz
+
+# Backend (Render)
+# Create separate Render service for staging
+# Connect to staging branch
+```
+
+---
+
+### Production
+
+**Frontend:**
+- URL: https://studentdeals.uz
+- Deployment: Vercel (main branch)
+- Environment: `NEXT_PUBLIC_ENV=production`
+- API: https://studentdeals-uz.onrender.com (auto-resolved)
+
+**Backend:**
+- URL: https://studentdeals-uz.onrender.com
+- Deployment: Render (main branch)
+- Environment: `NODE_ENV=production`
+- Database: Production database
+
+**Environment Variables (Vercel):**
+```bash
+NEXT_PUBLIC_ENV=production
+# NEXT_PUBLIC_API_URL not needed - auto-resolved to https://studentdeals-uz.onrender.com
+NEXT_PUBLIC_SENTRY_DSN=https://...@sentry.io/...
+SENTRY_ENVIRONMENT=production
+```
+
+**Environment Variables (Render):**
+```bash
+NODE_ENV=production
+DATABASE_URL=postgresql://...
+JWT_SECRET=<strong-production-secret>
+RESEND_API_KEY=re_...
+EMAIL_FROM=StudentDeals <noreply@studentdeals.uz>
+APP_URL=https://studentdeals.uz
+SENTRY_DSN=https://...@sentry.io/...
+```
+
+---
+
+### Environment URLs Summary
+
+| Environment | Frontend | Backend | Database |
+|-------------|----------|---------|----------|
+| **Development** | http://localhost:3000 | http://localhost:3001 | Local/Dev |
+| **Staging** | https://staging.studentdeals.uz | https://api-staging.studentdeals.uz | Staging DB |
+| **Production** | https://studentdeals.uz | https://studentdeals-uz.onrender.com | Production DB |
+
+### API URL Resolution
+
+API URL автоматически определяется на основе `NEXT_PUBLIC_ENV`:
+
+```typescript
+// apps/web/src/lib/api.ts
+function getApiUrl(): string {
+  // Explicit override
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+
+  // Auto-resolve based on environment
+  const env = process.env.NEXT_PUBLIC_ENV || process.env.NODE_ENV;
+  
+  switch (env) {
+    case 'staging':
+      return 'https://api-staging.studentdeals.uz';
+    case 'production':
+      return 'https://studentdeals-uz.onrender.com';
+    default:
+      return 'http://localhost:3001';
+  }
+}
+```
+
+**Преимущества:**
+- ✅ Не нужно указывать `NEXT_PUBLIC_API_URL` для каждого окружения
+- ✅ Автоматическое определение по `NEXT_PUBLIC_ENV`
+- ✅ Возможность переопределения через `NEXT_PUBLIC_API_URL`
+- ✅ Безопасные дефолты для development
+
+---
+
 ## Лицензия
 
 MIT

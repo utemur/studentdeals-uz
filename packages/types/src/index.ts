@@ -2,9 +2,9 @@
 export interface UserDTO {
   id: string;
   email: string;
-  emailVerifiedAt?: string | null;
-  createdAt?: string;
-  updatedAt?: string;
+  emailVerifiedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Auth types

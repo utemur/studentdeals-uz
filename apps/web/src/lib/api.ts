@@ -1,6 +1,28 @@
 import type { LoginRequest, RegisterRequest, AuthResponse, RegisterResponse, UserDTO } from '@studentdeals/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+/**
+ * Get API URL based on environment
+ */
+function getApiUrl(): string {
+  // Explicit API URL override
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+
+  // Environment-based resolution
+  const env = process.env.NEXT_PUBLIC_ENV || process.env.NODE_ENV;
+  
+  switch (env) {
+    case 'staging':
+      return 'https://api-staging.studentdeals.uz';
+    case 'production':
+      return 'https://studentdeals-uz.onrender.com';
+    default:
+      return 'http://localhost:3001';
+  }
+}
+
+const API_URL = getApiUrl();
 
 /**
  * Universal API helper
