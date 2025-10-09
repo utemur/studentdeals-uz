@@ -6,14 +6,14 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.use(helmet());
+  
+  // Parse ALLOWED_ORIGINS from environment (comma-separated list)
+  const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
+    : ['http://localhost:3000'];
+  
   app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'https://www.studentdeals.uz',
-      'https://studentdeals.uz',
-      'https://api.studentdeals.uz',
-      'https://studentdeals-uz.vercel.app',
-    ],
+    origin: allowedOrigins,
     credentials: true,
   });
 
