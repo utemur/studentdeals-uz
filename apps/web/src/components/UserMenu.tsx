@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@studentdeals/ui';
-import { logout } from '@/app/actions/auth';
 
 interface UserMenuProps {
   user: {
@@ -24,7 +23,12 @@ export default function UserMenu({ user, locale }: UserMenuProps) {
   const handleLogout = async () => {
     setLoading(true);
     try {
-      await logout();
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      
+      router.push(`/${locale}`);
       router.refresh();
     } catch (error) {
       console.error('Logout error:', error);
@@ -86,12 +90,12 @@ export default function UserMenu({ user, locale }: UserMenuProps) {
               
               <button
                 onClick={() => {
-                  router.push(`/${locale}/profile`);
+                  router.push(`/${locale}/dashboard`);
                   setIsOpen(false);
                 }}
                 className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
               >
-                Профиль
+                Личный кабинет
               </button>
               
               <button

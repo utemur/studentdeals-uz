@@ -1,22 +1,6 @@
+import type { LoginRequest, RegisterRequest, AuthResponse, RegisterResponse, UserDTO } from '@studentdeals/types';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-
-export interface SignupData {
-  email: string;
-  password: string;
-}
-
-export interface SigninData {
-  email: string;
-  password: string;
-}
-
-export interface AuthResponse {
-  access_token: string;
-  user: {
-    id: string;
-    email: string;
-  };
-}
 
 /**
  * Universal API helper
@@ -52,23 +36,34 @@ export async function api(path: string, init?: RequestInit) {
   return response.json();
 }
 
-// Legacy API methods (using new api helper)
+/**
+ * Auth API helpers
+ */
 export const authApi = {
-  async signup(data: SignupData): Promise<AuthResponse> {
-    return api('/auth/signup', {
+  /**
+   * Register new user
+   */
+  async register(data: RegisterRequest): Promise<RegisterResponse> {
+    return api('/auth/register', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   },
 
-  async signin(data: SigninData): Promise<AuthResponse> {
-    return api('/auth/signin', {
+  /**
+   * Login user (returns JWT token)
+   */
+  async login(data: LoginRequest): Promise<AuthResponse> {
+    return api('/auth/login', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   },
 
-  async getProfile(token: string) {
+  /**
+   * Get current user profile
+   */
+  async me(token: string): Promise<UserDTO> {
     return api('/auth/me', {
       headers: {
         Authorization: `Bearer ${token}`,

@@ -26,24 +26,28 @@ export default function SigninPage() {
         password: formData.get('password') as string,
       };
 
-      const response = await api('/auth/login', {
+      // Call our Next.js API route (proxy to Render API + sets httpOnly cookie)
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(loginData),
-        credentials: 'include',
-      }) as AuthResponse;
+      });
 
-      if (response.accessToken) {
-        // Сохраняем токен в localStorage
-        localStorage.setItem('access_token', response.accessToken);
-        
-        setToast({ message: 'Вход выполнен успешно!', type: 'success' });
-        
-        // Редирект через 500ms
-        setTimeout(() => {
-          router.push(`/${locale}`);
-          router.refresh();
-        }, 500);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
       }
+
+      setToast({ message: 'Вход выполнен успешно!', type: 'success' });
+      
+      // Редирект через 500ms
+      setTimeout(() => {
+        router.push(`/${locale}`);
+        router.refresh();
+      }, 500);
     } catch (err: any) {
       setToast({ message: err.message || 'Ошибка входа', type: 'error' });
       setLoading(false);

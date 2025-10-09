@@ -1,7 +1,7 @@
 import { Container } from "@studentdeals/ui";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import UserMenu from "@/components/UserMenu";
-import { getMe } from "@/app/actions/auth";
+import { getCurrentUser } from "@/lib/auth-server";
 import Link from "next/link";
 
 export default async function LocaleLayout({
@@ -11,7 +11,7 @@ export default async function LocaleLayout({
   children: React.ReactNode;
   params: { locale: string };
 }) {
-  const user = await getMe();
+  const user = await getCurrentUser();
   const locale = params.locale;
 
   return (

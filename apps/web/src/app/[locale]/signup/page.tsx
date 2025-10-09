@@ -26,35 +26,28 @@ export default function SignupPage() {
         password: formData.get('password') as string,
       };
 
-      // 1. Регистрация
-      const registerResponse = await api('/auth/register', {
+      // Call our Next.js API route (proxy to Render API + auto-login + sets httpOnly cookie)
+      const response = await fetch('/api/auth/register', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(registerData),
-      }) as RegisterResponse;
+      });
 
-      if (registerResponse.id) {
-        // 2. Автоматический вход после регистрации
-        const loginResponse = await api('/auth/login', {
-          method: 'POST',
-          body: JSON.stringify({
-            email: registerData.email,
-            password: registerData.password,
-          }),
-          credentials: 'include',
-        }) as AuthResponse;
+      const data = await response.json();
 
-        if (loginResponse.accessToken) {
-          localStorage.setItem('access_token', loginResponse.accessToken);
-          
-          setToast({ message: 'Регистрация успешна! Добро пожаловать!', type: 'success' });
-          
-          // Редирект через 500ms
-          setTimeout(() => {
-            router.push(`/${locale}`);
-            router.refresh();
-          }, 500);
-        }
+      if (!response.ok) {
+        throw new Error(data.error || 'Registration failed');
       }
+
+      setToast({ message: 'Регистрация успешна! Добро пожаловать!', type: 'success' });
+      
+      // Редирект через 500ms
+      setTimeout(() => {
+        router.push(`/${locale}`);
+        router.refresh();
+      }, 500);
     } catch (err: any) {
       setToast({ message: err.message || 'Ошибка регистрации', type: 'error' });
       setLoading(false);
