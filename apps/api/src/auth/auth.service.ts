@@ -1,14 +1,17 @@
 import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
+// import { PrismaService } from '../prisma.service';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { AuthTokens } from './types';
 
+// Temporary in-memory storage for development
+const users: Array<{ id: string; email: string; passwordHash: string; emailVerifiedAt: string | null; createdAt: string; updatedAt: string }> = [];
+
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService) {}
+  // constructor(private prisma: PrismaService) {}
 
   private signAccessToken(userId: string, email: string): string {
     const secret = process.env.JWT_SECRET || 'dev_secret_change_me';
@@ -16,22 +19,25 @@ export class AuthService {
   }
 
   async register(dto: RegisterDto): Promise<{ id: string; email: string }> {
-    const exists = await this.prisma.user.findUnique({ where: { email: dto.email.toLowerCase() } });
+    const exists = users.find(u => u.email.toLowerCase() === dto.email.toLowerCase());
     if (exists) throw new BadRequestException('Email already registered');
 
     const passwordHash = await bcrypt.hash(dto.password, 10);
-    const user = await this.prisma.user.create({
-      data: {
-        email: dto.email.toLowerCase(),
-        passwordHash,
-      },
-    });
-    // TODO: email verification flow (создать токен в таблице, отправить письмо)
+    const user = {
+      id: `user_${Date.now()}`,
+      email: dto.email.toLowerCase(),
+      passwordHash,
+      emailVerifiedAt: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    users.push(user);
     return { id: user.id, email: user.email };
   }
 
   async login(dto: LoginDto): Promise<AuthTokens> {
-    const user = await this.prisma.user.findUnique({ where: { email: dto.email.toLowerCase() } });
+    const user = users.find(u => u.email.toLowerCase() === dto.email.toLowerCase());
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
     const ok = await bcrypt.compare(dto.password, user.passwordHash);
@@ -42,10 +48,15 @@ export class AuthService {
   }
 
   async me(userId: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: { id: true, email: true, emailVerifiedAt: true, createdAt: true, updatedAt: true },
-    });
-    return user;
+    const user = users.find(u => u.id === userId);
+    if (!user) return null;
+    
+    return {
+      id: user.id,
+      email: user.email,
+      emailVerifiedAt: user.emailVerifiedAt,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
   }
 }
