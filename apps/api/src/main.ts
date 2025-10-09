@@ -3,6 +3,7 @@ import './instrument';
 
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import * as compression from 'compression';
 
@@ -13,29 +14,58 @@ async function bootstrap() {
   const expressApp = app.getHttpAdapter().getInstance();
   expressApp.set('trust proxy', 1);
 
-  // Helmet security headers
+  // Helmet security headers with PWA support
+  // CSP disabled - handled by frontend (Next.js)
+  // This allows PWA service workers to work with blob: and self
   app.use(helmet({
     crossOriginResourcePolicy: { policy: 'same-origin' },
-    contentSecurityPolicy: false, // CSP handled by frontend
+    contentSecurityPolicy: false,
   }));
 
   // Compression
   app.use(compression());
   
-  // Parse CORS_ORIGINS from environment (comma-separated list)
-  const corsOrigins = process.env.CORS_ORIGINS
-    ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
-    : ['http://localhost:3000'];
+  // CORS - Production only (studentdeals.uz domains)
+  const allowedOrigins = [
+    'https://studentdeals.uz',
+    'https://www.studentdeals.uz',
+  ];
   
   app.enableCors({
-    origin: corsOrigins,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-    credentials: true,
+    credentials: false, // No credentials for security
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   });
 
+  // Swagger API Documentation (optional, only in development)
+  if (process.env.NODE_ENV !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle('StudentDeals API')
+      .setDescription('StudentDeals Uzbekistan API Documentation')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .build();
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api-docs', app, document);
+  }
+
   const port = process.env.PORT || 3001;
   await app.listen(Number(port), '0.0.0.0');
+  
+  console.log(`🚀 API running on http://localhost:${port}`);
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`📚 Swagger docs: http://localhost:${port}/api-docs`);
+  }
   
   return app;
 }

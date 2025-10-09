@@ -11,8 +11,8 @@ import { AuthModule } from './auth/auth.module';
     ConfigModule.forRoot({ isGlobal: true }),
     SentryModule.forRoot(),
     ThrottlerModule.forRoot([{
-      ttl: Number(process.env.RATE_LIMIT_WINDOW) || 60000, // milliseconds
-      limit: Number(process.env.RATE_LIMIT_MAX) || 100,
+      ttl: 60000, // 60 seconds = 1 minute
+      limit: 100, // 100 requests per minute per IP
     }]),
     AuthModule,
   ],
