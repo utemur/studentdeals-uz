@@ -39,6 +39,9 @@ export default defineConfig({
     video: 'retain-on-failure',
   },
 
+  /* Global setup for MSW */
+  globalSetup: require.resolve('./e2e/global-setup.ts'),
+
   /* Configure projects for major browsers */
   projects: [
     {

@@ -30,6 +30,9 @@ test.describe('Homepage', () => {
     await expect(uzButton).toBeVisible();
     await uzButton.click();
     
+    // Wait for navigation
+    await page.waitForTimeout(1000);
+    
     // Check URL changed
     await expect(page).toHaveURL(/\/uz/);
   });
@@ -42,6 +45,9 @@ test.describe('Homepage', () => {
     await expect(ruButton).toBeVisible();
     await ruButton.click();
     
+    // Wait for navigation
+    await page.waitForTimeout(1000);
+    
     // Check URL changed
     await expect(page).toHaveURL(/\/ru/);
   });
@@ -53,6 +59,10 @@ test.describe('Homepage', () => {
     const signInButton = page.getByRole('button', { name: 'Войти' });
     await expect(signInButton).toBeVisible();
     await signInButton.click();
+    
+    // Wait for navigation
+    await page.waitForTimeout(1000);
+    
     await expect(page).toHaveURL(/\/ru\/signin/);
   });
 
@@ -63,6 +73,10 @@ test.describe('Homepage', () => {
     const signUpButton = page.getByRole('button', { name: 'Регистрация' });
     await expect(signUpButton).toBeVisible();
     await signUpButton.click();
+    
+    // Wait for navigation
+    await page.waitForTimeout(1000);
+    
     await expect(page).toHaveURL(/\/ru\/signup/);
   });
 });
