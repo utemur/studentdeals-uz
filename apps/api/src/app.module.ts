@@ -6,7 +6,7 @@ import { HealthController } from './health.controller';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    // AuthModule, // Temporarily disabled for testing
+    // AuthModule, // Temporarily disabled until DB connection is fixed
   ],
   controllers: [HealthController],
 })
