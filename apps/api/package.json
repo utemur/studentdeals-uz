@@ -27,6 +27,7 @@
     "compression": "^1.8.1",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^7.0.9",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.1.14",
@@ -38,6 +39,7 @@
     "@types/compression": "^1.8.1",
     "@types/jsonwebtoken": "^9.0.5",
     "@types/node": "^20.0.0",
+    "@types/nodemailer": "^7.0.2",
     "@types/passport-jwt": "^4.0.1",
     "prisma": "^6.16.3",
     "typescript": "^5.9.0"

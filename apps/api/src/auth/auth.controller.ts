@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './jwt.guard';
 import { CurrentUser } from './current-user.decorator';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
@@ -23,5 +24,11 @@ export class AuthController {
   @Get('me')
   me(@CurrentUser() user?: { userId: string }) {
     return this.auth.me(user!.userId);
+  }
+
+  @Get('verify')
+  @SkipThrottle() // Allow unlimited verification attempts
+  verifyEmail(@Query('token') token: string) {
+    return this.auth.verifyEmail(token);
   }
 }

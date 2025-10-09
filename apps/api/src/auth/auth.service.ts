@@ -1,21 +1,28 @@
-import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, BadRequestException, UnauthorizedException, NotFoundException } from '@nestjs/common';
 // import { PrismaService } from '../prisma.service';
+import { EmailService } from '../email.service';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
+import * as crypto from 'crypto';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { AuthTokens } from './types';
 
 // Temporary in-memory storage for development
 const users: Array<{ id: string; email: string; passwordHash: string; emailVerifiedAt: string | null; createdAt: string; updatedAt: string }> = [];
+const verificationTokens: Array<{ id: string; userId: string; token: string; expiresAt: string; usedAt: string | null }> = [];
 
 @Injectable()
 export class AuthService {
-  // constructor(private prisma: PrismaService) {}
+  constructor(private emailService: EmailService) {}
 
   private signAccessToken(userId: string, email: string): string {
     const secret = process.env.JWT_SECRET || 'dev_secret_change_me';
     return jwt.sign({ sub: userId, email }, secret, { expiresIn: '30m' });
+  }
+
+  private generateVerificationToken(): string {
+    return crypto.randomBytes(32).toString('hex');
   }
 
   async register(dto: RegisterDto): Promise<{ id: string; email: string }> {
@@ -33,6 +40,28 @@ export class AuthService {
     };
     
     users.push(user);
+
+    // Generate verification token
+    const token = this.generateVerificationToken();
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 24); // 24 hours TTL
+
+    verificationTokens.push({
+      id: `token_${Date.now()}`,
+      userId: user.id,
+      token,
+      expiresAt: expiresAt.toISOString(),
+      usedAt: null,
+    });
+
+    // Send verification email
+    try {
+      await this.emailService.sendVerificationEmail(user.email, token);
+    } catch (error) {
+      console.error('Failed to send verification email:', error);
+      // Don't fail registration if email fails
+    }
+
     return { id: user.id, email: user.email };
   }
 
@@ -57,6 +86,40 @@ export class AuthService {
       emailVerifiedAt: user.emailVerifiedAt,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
+    };
+  }
+
+  async verifyEmail(token: string): Promise<{ success: boolean; message: string }> {
+    const verificationToken = verificationTokens.find(t => t.token === token);
+
+    if (!verificationToken) {
+      throw new NotFoundException('Invalid verification token');
+    }
+
+    if (verificationToken.usedAt) {
+      throw new BadRequestException('Token already used');
+    }
+
+    const now = new Date();
+    const expiresAt = new Date(verificationToken.expiresAt);
+
+    if (now > expiresAt) {
+      throw new BadRequestException('Token expired');
+    }
+
+    // Mark token as used
+    verificationToken.usedAt = now.toISOString();
+
+    // Update user email verification
+    const user = users.find(u => u.id === verificationToken.userId);
+    if (user) {
+      user.emailVerifiedAt = now.toISOString();
+      user.updatedAt = now.toISOString();
+    }
+
+    return {
+      success: true,
+      message: 'Email verified successfully',
     };
   }
 }
