@@ -120,14 +120,77 @@ pnpm add -w <package>
 
 ## CI/CD
 
-GitHub Actions автоматически выполняет:
-1. **Lint** - проверка кода с ESLint
-2. **Typecheck** - проверка типов TypeScript
-3. **Build** - сборка всех пакетов
+GitHub Actions автоматически выполняет проверки при каждом push/PR в `main`:
 
-Workflow запускается на:
-- Pull requests в `main` и `develop`
-- Push в `main` и `develop`
+### 🔄 CI Pipeline
+
+**Три параллельных job'а:**
+
+1. **Typecheck** (`typecheck`)
+   - Проверка типов TypeScript
+   - Команда: `pnpm -w typecheck`
+   - Matrix: Node.js 20.x
+
+2. **Lint** (`lint`)
+   - Проверка кода с ESLint
+   - Команда: `pnpm -w lint`
+   - Matrix: Node.js 20.x
+
+3. **Test** (`test`)
+   - Запуск тестов (если есть)
+   - Команда: `pnpm -w test --if-present`
+   - Matrix: Node.js 20.x
+
+4. **Build Web** (`build-web`)
+   - Сборка Next.js приложения
+   - Команда: `pnpm -C apps/web build`
+   - Запускается только если изменились файлы в `apps/web/**` или `packages/**`
+   - Загружает артефакты `.next/static` (хранятся 7 дней)
+   - Зависит от: typecheck, lint, test
+
+### ⚡ Оптимизация
+
+**Кэширование:**
+- ✅ pnpm store (по хешу `pnpm-lock.yaml`)
+- ✅ node_modules (по хешу `pnpm-lock.yaml`)
+- ✅ Concurrency: отменяет предыдущие запуски при новом push
+
+**Производительность:**
+- Параллельное выполнение typecheck, lint, test
+- Build только при изменении релевантных файлов
+- Кэш node_modules ускоряет установку до ~30 секунд
+
+### 🎯 Триггеры
+
+```yaml
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+```
+
+### 📦 Артефакты
+
+Build артефакты сохраняются на 7 дней:
+- **Имя:** `web-build-${{ github.sha }}`
+- **Путь:** `apps/web/.next/static`
+- **Retention:** 7 дней
+
+### 🧪 Локальное тестирование CI
+
+```bash
+# Запустить все проверки локально
+pnpm install --frozen-lockfile
+pnpm -w typecheck
+pnpm -w lint
+pnpm -w test --if-present
+pnpm -C apps/web build
+```
 
 ## Лицензия
 
