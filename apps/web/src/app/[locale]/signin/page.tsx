@@ -1,34 +1,39 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@studentdeals/ui';
-import { authApi } from '@/lib/api';
+import { login } from '@/app/actions/auth';
 
 export default function SigninPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const params = useParams();
+  const locale = params.locale as string;
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      const response = await authApi.signin({ email, password });
+      const formData = new FormData(e.currentTarget);
+      formData.set('locale', locale);
       
-      // Save token to localStorage
-      localStorage.setItem('access_token', response.access_token);
-      localStorage.setItem('user', JSON.stringify(response.user));
+      const result = await login(formData);
+      
+      if (result?.error) {
+        setError(result.error);
+        setLoading(false);
+        return;
+      }
 
-      // Redirect to home page
-      router.push('/');
+      // Успешный вход
+      router.push(`/${locale}`);
+      router.refresh();
     } catch (err: any) {
-      setError(err.message || 'Login failed');
-    } finally {
+      setError(err.message || 'Ошибка входа');
       setLoading(false);
     }
   };
@@ -42,7 +47,7 @@ export default function SigninPage() {
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Нет аккаунта?{' '}
-            <a href="/signup" className="font-medium text-blue-600 hover:text-blue-500">
+            <a href={`/${locale}/signup`} className="font-medium text-blue-600 hover:text-blue-500">
               Зарегистрироваться
             </a>
           </p>
@@ -66,8 +71,6 @@ export default function SigninPage() {
                 type="email"
                 autoComplete="email"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder="Email адрес"
               />
@@ -82,8 +85,6 @@ export default function SigninPage() {
                 type="password"
                 autoComplete="current-password"
                 required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder="Пароль"
               />
