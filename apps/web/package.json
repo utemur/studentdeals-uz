@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf .next"
+    "clean": "rm -rf .next",
+    "check:headers": "node scripts/check-headers.js"
   },
   "dependencies": {
     "@sentry/nextjs": "^10.19.0",
