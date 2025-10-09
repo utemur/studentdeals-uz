@@ -99,8 +99,80 @@ src/
 └── health.controller.ts # Health check с Swagger документацией
 ```
 
+## Middleware
+
+### Compression
+
+API использует gzip/deflate compression для оптимизации размера ответов.
+
+**Конфигурация:**
+```typescript
+import compression from 'compression';
+app.use(compression());
+```
+
+**Особенности:**
+- ✅ Автоматическое сжатие всех ответов > 1KB
+- ✅ Поддержка gzip и deflate
+- ✅ Снижение трафика на ~70-80%
+- ✅ Улучшение скорости загрузки
+
+**Отключение для конкретных роутов:**
+```typescript
+// В контроллере
+@Header('Content-Encoding', 'identity')
+@Get('large-file')
+getLargeFile() {
+  // Compression будет отключен для этого роута
+}
+```
+
+### Helmet
+
+Безопасные HTTP заголовки через helmet.
+
+**Конфигурация:**
+```typescript
+import helmet from 'helmet';
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'same-origin' },
+  contentSecurityPolicy: false, // CSP handled by Next.js
+}));
+```
+
+**Применённые заголовки:**
+- Cross-Origin-Opener-Policy: same-origin
+- Cross-Origin-Resource-Policy: same-origin
+- Referrer-Policy: no-referrer
+- Strict-Transport-Security: max-age=15552000
+- X-Content-Type-Options: nosniff
+- X-Frame-Options: SAMEORIGIN
+- X-XSS-Protection: 0
+
+### Rate Limiting
+
+Глобальный rate limit через @nestjs/throttler.
+
+**Конфигурация:**
+```typescript
+ThrottlerModule.forRoot([{
+  ttl: 60000, // 60 seconds = 1 minute
+  limit: 100, // 100 requests per minute per IP
+}])
+```
+
+**Ответ при превышении:**
+```json
+{
+  "statusCode": 429,
+  "message": "ThrottlerException: Too Many Requests"
+}
+```
+
 ## CORS
 
 API настроен для работы с:
 - `https://studentdeals.uz` (продакшен)
-- `http://localhost:3000` (разработка)
+- `https://www.studentdeals.uz` (продакшен)
+- `http://localhost:*` (разработка, любой порт)
+- Requests без origin (curl, mobile apps)
