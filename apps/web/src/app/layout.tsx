@@ -24,21 +24,13 @@ export function generateStaticParams() {
 
 export default async function RootLayout({
   children,
-  params: { locale },
 }: {
   children: React.ReactNode;
-  params: { locale: string };
 }) {
-  if (!locales.includes(locale as any)) notFound();
-
-  const messages = await getMessages();
-
   return (
-    <html lang={locale}>
+    <html>
       <body>
-        <NextIntlClientProvider messages={messages}>
-          {children}
-        </NextIntlClientProvider>
+        {children}
       </body>
     </html>
   );

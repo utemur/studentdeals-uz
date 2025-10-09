@@ -1,3 +1,5 @@
+'use client';
+
 import { Container, Card, CardContent, CardHeader, Button } from "@studentdeals/ui";
 import { useTranslations } from "next-intl";
 
