@@ -4,11 +4,49 @@ import './instrument';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { WinstonModule } from 'nest-winston';
+import * as winston from 'winston';
 import helmet from 'helmet';
 import compression from 'compression';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  // Winston logger configuration
+  const winstonLogger = WinstonModule.createLogger({
+    transports: [
+      new winston.transports.Console({
+        format: winston.format.combine(
+          winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+          winston.format.errors({ stack: true }),
+          winston.format.splat(),
+          winston.format.json(),
+        ),
+      }),
+      // File transport for production
+      ...(process.env.NODE_ENV === 'production'
+        ? [
+            new winston.transports.File({
+              filename: 'logs/error.log',
+              level: 'error',
+              format: winston.format.combine(
+                winston.format.timestamp(),
+                winston.format.json(),
+              ),
+            }),
+            new winston.transports.File({
+              filename: 'logs/combined.log',
+              format: winston.format.combine(
+                winston.format.timestamp(),
+                winston.format.json(),
+              ),
+            }),
+          ]
+        : []),
+    ],
+  });
+
+  const app = await NestFactory.create(AppModule, {
+    logger: winstonLogger,
+  });
 
   // Trust proxy (for Render/Cloudflare)
   const expressApp = app.getHttpAdapter().getInstance();

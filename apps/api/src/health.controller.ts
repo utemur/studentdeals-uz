@@ -24,4 +24,10 @@ export class HealthController {
     // Temporarily return mock response until DB connection is fixed
     return { ok: true, db: 'mock', message: 'DB connection pending' };
   }
+
+  @Get('/health/error')
+  @Header('X-API-Version', API_VERSION)
+  testError() {
+    throw new Error('Test Sentry error - this is intentional for monitoring testing');
+  }
 }
