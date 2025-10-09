@@ -1,13 +1,13 @@
 'use client';
 
-import { useLocale } from "next-intl";
-import { useRouter, usePathname } from "next/navigation";
+import { useParams, useRouter, usePathname } from "next/navigation";
 import { Button } from "@studentdeals/ui";
 
 export default function LanguageSwitcher() {
-  const locale = useLocale();
+  const params = useParams();
   const router = useRouter();
   const pathname = usePathname();
+  const locale = params.locale as string;
 
   const switchLanguage = (newLocale: string) => {
     const newPath = pathname.replace(`/${locale}`, `/${newLocale}`);
