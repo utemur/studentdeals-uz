@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { AxeAccessibility } from "@/components/AxeAccessibility";
 
 export const metadata: Metadata = {
   title: "Student Deals Uzbekistan",
@@ -26,6 +27,7 @@ export default function RootLayout({
   return (
     <html>
       <body>
+        {process.env.NODE_ENV === 'development' && <AxeAccessibility />}
         {children}
       </body>
     </html>
