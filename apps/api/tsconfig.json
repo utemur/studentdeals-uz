@@ -6,6 +6,7 @@
     "noEmit": false,
     "types": ["node"],
     "lib": ["ES2020"],
+    "jsx": "react",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "target": "ES2020",

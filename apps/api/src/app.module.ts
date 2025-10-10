@@ -6,6 +6,8 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { HealthController } from './health.controller';
 import { SentryTestController } from './sentry-test.controller';
 import { AuthModule } from './auth/auth.module';
+import { EmailModule } from './email/email.module';
+import { EmailPreviewController } from './email/email-preview.controller';
 
 @Module({
   imports: [
@@ -16,11 +18,15 @@ import { AuthModule } from './auth/auth.module';
       limit: 100, // 100 requests per minute per IP
     }]),
     AuthModule,
+    EmailModule,
   ],
   controllers: [
     HealthController,
-    // Only enable Sentry test controller in non-production
-    ...(process.env.NODE_ENV !== 'production' ? [SentryTestController] : []),
+    // Only enable test controllers in non-production
+    ...(process.env.NODE_ENV !== 'production' 
+      ? [SentryTestController, EmailPreviewController] 
+      : []
+    ),
   ],
   providers: [
     {
