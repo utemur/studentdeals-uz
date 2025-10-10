@@ -19,6 +19,7 @@ export function Footer() {
       links: [
         { href: `/${locale}/privacy`, label: locale === 'ru' ? 'Конфиденциальность' : 'Maxfiylik' },
         { href: `/${locale}/terms`, label: locale === 'ru' ? 'Условия использования' : 'Foydalanish shartlari' },
+        { href: `/${locale}/cookies`, label: locale === 'ru' ? 'Cookies' : 'Cookie fayllari' },
       ],
     },
     support: {

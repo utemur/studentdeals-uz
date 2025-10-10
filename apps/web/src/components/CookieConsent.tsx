@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@studentdeals/ui';
 import { consent } from '@/lib/analytics';
 
@@ -8,9 +10,31 @@ import { consent } from '@/lib/analytics';
  * Cookie Consent Banner
  * Shows a banner asking for analytics consent
  * Respects Do Not Track
+ * Supports ru/uz languages
  */
 export function CookieConsent() {
   const [showBanner, setShowBanner] = useState(false);
+  const params = useParams();
+  const locale = (params?.locale as string) || 'ru';
+
+  const content = {
+    ru: {
+      title: 'Мы используем cookies',
+      description: 'для улучшения вашего опыта и анализа использования сайта. Мы уважаем вашу приватность и не передаем данные третьим лицам.',
+      learnMore: 'Подробнее',
+      accept: 'Принять',
+      deny: 'Отклонить',
+    },
+    uz: {
+      title: 'Biz cookie fayllaridan foydalanamiz',
+      description: 'tajribangizni yaxshilash va saytdan foydalanishni tahlil qilish uchun. Biz maxfiyligingizni hurmat qilamiz va ma\'lumotlarni uchinchi shaxslarga uzatmaymiz.',
+      learnMore: 'Batafsil',
+      accept: 'Qabul qilish',
+      deny: 'Rad etish',
+    },
+  };
+
+  const text = content[locale as 'ru' | 'uz'];
 
   useEffect(() => {
     // Check if consent has already been given/denied
@@ -51,8 +75,10 @@ export function CookieConsent() {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex-1 text-sm text-gray-700">
             <p>
-              <strong>Мы используем cookies</strong> для улучшения вашего опыта и анализа использования сайта. 
-              Мы уважаем вашу приватность и не передаем данные третьим лицам.
+              <strong>{text.title}</strong> {text.description}{' '}
+              <Link href={`/${locale}/cookies`} className="text-blue-600 hover:text-blue-800 underline">
+                {text.learnMore}
+              </Link>
             </p>
           </div>
           <div className="flex gap-2 flex-shrink-0">
@@ -61,14 +87,14 @@ export function CookieConsent() {
               size="sm"
               onClick={handleDeny}
             >
-              Отклонить
+              {text.deny}
             </Button>
             <Button
               variant="primary"
               size="sm"
               onClick={handleAccept}
             >
-              Принять
+              {text.accept}
             </Button>
           </div>
         </div>
