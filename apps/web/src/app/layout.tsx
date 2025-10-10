@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AxeAccessibility } from "@/components/AxeAccessibility";
+import { Analytics } from "@/components/Analytics";
+import { CookieConsent } from "@/components/CookieConsent";
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://studentdeals.uz';
 
@@ -70,6 +72,8 @@ export default function RootLayout({
     <html>
       <body>
         {process.env.NODE_ENV === 'development' && <AxeAccessibility />}
+        <Analytics />
+        <CookieConsent />
         {children}
       </body>
     </html>

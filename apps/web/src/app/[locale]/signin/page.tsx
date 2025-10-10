@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@studentdeals/ui';
 import { api } from '@/lib/api';
+import { analytics } from '@/lib/analytics';
 import Toast from '@/components/Toast';
 import type { LoginRequest, AuthResponse } from '@studentdeals/types';
 
@@ -38,9 +39,14 @@ export default function SigninPage() {
       const data = await response.json();
 
       if (!response.ok) {
+        // Track API error
+        analytics.apiError('/api/auth/login', response.status, data.error);
         throw new Error(data.error || 'Login failed');
       }
 
+      // Track successful signin
+      analytics.signinSuccess(data.user?.id);
+      
       setToast({ message: 'Вход выполнен успешно!', type: 'success' });
       
       // Редирект через 500ms

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { analytics } from '@/lib/analytics';
 
 interface ToastProps {
   message: string;
@@ -11,11 +12,16 @@ interface ToastProps {
 
 export default function Toast({ message, type = 'info', onClose, duration = 3000 }: ToastProps) {
   useEffect(() => {
+    // Track error toasts
+    if (type === 'error') {
+      analytics.errorToast(message);
+    }
+
     if (duration > 0 && onClose) {
       const timer = setTimeout(onClose, duration);
       return () => clearTimeout(timer);
     }
-  }, [duration, onClose]);
+  }, [duration, onClose, message, type]);
 
   const bgColor = {
     success: 'bg-green-50 border-green-200',

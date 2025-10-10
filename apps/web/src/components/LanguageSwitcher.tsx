@@ -2,6 +2,7 @@
 
 import { useParams, useRouter, usePathname } from "next/navigation";
 import { Button } from "@studentdeals/ui";
+import { analytics } from "@/lib/analytics";
 
 export default function LanguageSwitcher() {
   const params = useParams();
@@ -10,6 +11,11 @@ export default function LanguageSwitcher() {
   const locale = params.locale as string;
 
   const switchLanguage = (newLocale: string) => {
+    if (newLocale === locale) return;
+    
+    // Track language switch
+    analytics.languageSwitch(locale, newLocale);
+    
     const newPath = pathname.replace(`/${locale}`, `/${newLocale}`);
     router.push(newPath);
   };

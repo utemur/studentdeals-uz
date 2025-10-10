@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@studentdeals/ui';
 import { api } from '@/lib/api';
+import { analytics } from '@/lib/analytics';
 import Toast from '@/components/Toast';
 import type { RegisterRequest, RegisterResponse, AuthResponse } from '@studentdeals/types';
 
@@ -13,6 +14,11 @@ export default function SignupPage() {
   const locale = params.locale as string;
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Track signup_start when page loads
+  useEffect(() => {
+    analytics.signupStart();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -38,8 +44,13 @@ export default function SignupPage() {
       const data = await response.json();
 
       if (!response.ok) {
+        // Track API error
+        analytics.apiError('/api/auth/register', response.status, data.error);
         throw new Error(data.error || 'Registration failed');
       }
+
+      // Track successful signup
+      analytics.signupSuccess(data.user?.id);
 
       setToast({ message: 'Регистрация успешна! Добро пожаловать!', type: 'success' });
       
