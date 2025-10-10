@@ -1,12 +1,41 @@
 import * as Sentry from "@sentry/nextjs";
 
+const SENTRY_DSN = process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN;
+const ENVIRONMENT = process.env.NEXT_PUBLIC_ENVIRONMENT || process.env.NODE_ENV || 'development';
+const IS_PRODUCTION = ENVIRONMENT === 'production';
+
+// Sample rates: 10% in production, 100% in development
+const TRACES_SAMPLE_RATE = IS_PRODUCTION 
+  ? parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE || '0.1')
+  : 1.0;
+
 Sentry.init({
-  dsn: process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN,
+  dsn: SENTRY_DSN,
+  
+  environment: ENVIRONMENT,
 
-  // Adjust this value in production, or use tracesSampler for greater control
-  tracesSampleRate: 1.0,
+  // Performance Monitoring: 10% in production, 100% in development
+  tracesSampleRate: TRACES_SAMPLE_RATE,
 
-  // Setting this option to true will print useful information to the console while you're setting up Sentry.
-  debug: false,
+  // Debug mode (only in development)
+  debug: !IS_PRODUCTION && process.env.SENTRY_DEBUG === 'true',
+
+  // Before sending events
+  beforeSend(event, hint) {
+    // Filter out development errors
+    if (!IS_PRODUCTION && event.level === 'warning') {
+      return null;
+    }
+    return event;
+  },
+
+  // Transaction naming and filtering
+  beforeSendTransaction(event) {
+    // Don't send transactions for health checks
+    if (event.transaction?.includes('/health')) {
+      return null;
+    }
+    return event;
+  },
 });
 

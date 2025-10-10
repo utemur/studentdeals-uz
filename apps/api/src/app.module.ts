@@ -4,6 +4,7 @@ import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { HealthController } from './health.controller';
+import { SentryTestController } from './sentry-test.controller';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
@@ -16,7 +17,11 @@ import { AuthModule } from './auth/auth.module';
     }]),
     AuthModule,
   ],
-  controllers: [HealthController],
+  controllers: [
+    HealthController,
+    // Only enable Sentry test controller in non-production
+    ...(process.env.NODE_ENV !== 'production' ? [SentryTestController] : []),
+  ],
   providers: [
     {
       provide: APP_FILTER,
