@@ -1,6 +1,7 @@
 import { Container } from "@studentdeals/ui";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import UserMenu from "@/components/UserMenu";
+import { Footer } from "@/components/Footer";
 import { getCurrentUser } from "@/lib/auth-server";
 import Link from "next/link";
 
@@ -15,7 +16,7 @@ export default async function LocaleLayout({
   const locale = params.locale;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <header className="bg-white shadow-sm border-b">
         <Container>
           <div className="flex items-center justify-between h-16">
@@ -31,9 +32,10 @@ export default async function LocaleLayout({
           </div>
         </Container>
       </header>
-      <main>
+      <main className="flex-grow">
         {children}
       </main>
+      <Footer />
     </div>
   );
 }
