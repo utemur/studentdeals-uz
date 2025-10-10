@@ -1,4 +1,7 @@
 const { withSentryConfig } = require("@sentry/nextjs");
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
 
 const withPWA = require("next-pwa")({
   dest: "public",
@@ -160,7 +163,7 @@ const nextConfig = {
 };
 
 module.exports = withSentryConfig(
-  withNextIntl(withPWA(nextConfig)),
+  withBundleAnalyzer(withNextIntl(withPWA(nextConfig))),
   {
     // For all available options, see:
     // https://github.com/getsentry/sentry-webpack-plugin#options

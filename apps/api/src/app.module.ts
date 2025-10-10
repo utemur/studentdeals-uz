@@ -5,6 +5,7 @@ import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { HealthController } from './health.controller';
 import { SentryTestController } from './sentry-test.controller';
+import { MetricsController } from './metrics.controller';
 import { AuthModule } from './auth/auth.module';
 import { EmailModule } from './email/email.module';
 import { EmailPreviewController } from './email/email-preview.controller';
@@ -22,6 +23,7 @@ import { EmailPreviewController } from './email/email-preview.controller';
   ],
   controllers: [
     HealthController,
+    MetricsController,
     // Only enable test controllers in non-production
     ...(process.env.NODE_ENV !== 'production' 
       ? [SentryTestController, EmailPreviewController] 
