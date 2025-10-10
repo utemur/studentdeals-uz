@@ -1,5 +1,6 @@
 import { Container } from '@studentdeals/ui';
 import { getMarkdownContent, markdownToHtml } from '@/lib/markdown';
+import { generateSEOMetadata, pageMetadata } from '@/lib/seo';
 
 // Enable ISR with 1 hour revalidation (content rarely changes)
 export const revalidate = 3600;
@@ -12,16 +13,14 @@ interface PrivacyPageProps {
 
 export async function generateMetadata({ params }: PrivacyPageProps) {
   const { locale } = params;
+  const metadata = pageMetadata.privacy[locale as 'ru' | 'uz'];
   
-  return {
-    title: locale === 'ru' ? 'Политика конфиденциальности - StudentDeals.uz' : 'Maxfiylik siyosati - StudentDeals.uz',
-    description: locale === 'ru' 
-      ? 'Политика конфиденциальности StudentDeals.uz - как мы собираем, используем и защищаем ваши данные'
-      : 'StudentDeals.uz maxfiylik siyosati - ma\'lumotlaringizni qanday yig\'amiz, ishlatamiz va himoya qilamiz',
-    other: {
-      'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=7200',
-    },
-  };
+  return generateSEOMetadata({
+    title: metadata.title,
+    description: metadata.description,
+    locale,
+    path: '/privacy',
+  });
 }
 
 export default async function PrivacyPage({ params }: PrivacyPageProps) {

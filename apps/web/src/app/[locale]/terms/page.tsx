@@ -1,5 +1,6 @@
 import { Container } from '@studentdeals/ui';
 import { getMarkdownContent, markdownToHtml } from '@/lib/markdown';
+import { generateSEOMetadata, pageMetadata } from '@/lib/seo';
 
 // Enable ISR with 1 hour revalidation (content rarely changes)
 export const revalidate = 3600;
@@ -12,16 +13,14 @@ interface TermsPageProps {
 
 export async function generateMetadata({ params }: TermsPageProps) {
   const { locale } = params;
+  const metadata = pageMetadata.terms[locale as 'ru' | 'uz'];
   
-  return {
-    title: locale === 'ru' ? 'Условия использования - StudentDeals.uz' : 'Foydalanish shartlari - StudentDeals.uz',
-    description: locale === 'ru' 
-      ? 'Условия использования StudentDeals.uz - правила и требования для пользователей платформы'
-      : 'StudentDeals.uz foydalanish shartlari - platforma foydalanuvchilari uchun qoidalar va talablar',
-    other: {
-      'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=7200',
-    },
-  };
+  return generateSEOMetadata({
+    title: metadata.title,
+    description: metadata.description,
+    locale,
+    path: '/terms',
+  });
 }
 
 export default async function TermsPage({ params }: TermsPageProps) {

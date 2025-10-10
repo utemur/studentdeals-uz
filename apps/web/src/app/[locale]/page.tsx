@@ -1,19 +1,26 @@
 import { Container, Card, CardContent, CardHeader, Button } from "@studentdeals/ui";
-import { headers } from 'next/headers';
+import { generateSEOMetadata, pageMetadata } from '@/lib/seo';
 
 // Enable ISR with 60 second revalidation
 export const revalidate = 60;
 
-// Set cache control headers for this page
-export async function generateMetadata() {
-  // Set Cache-Control headers for static pages
-  const headersList = headers();
-  
-  return {
-    other: {
-      'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
-    },
+interface HomePageProps {
+  params: {
+    locale: string;
   };
+}
+
+// Generate SEO metadata
+export async function generateMetadata({ params }: HomePageProps) {
+  const { locale } = params;
+  const metadata = pageMetadata.home[locale as 'ru' | 'uz'];
+  
+  return generateSEOMetadata({
+    title: metadata.title,
+    description: metadata.description,
+    locale,
+    path: '',
+  });
 }
 
 export default function HomePage() {
