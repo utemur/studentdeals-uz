@@ -1,4 +1,20 @@
 import { Container, Card, CardContent, CardHeader, Button } from "@studentdeals/ui";
+import { headers } from 'next/headers';
+
+// Enable ISR with 60 second revalidation
+export const revalidate = 60;
+
+// Set cache control headers for this page
+export async function generateMetadata() {
+  // Set Cache-Control headers for static pages
+  const headersList = headers();
+  
+  return {
+    other: {
+      'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+    },
+  };
+}
 
 export default function HomePage() {
   return (

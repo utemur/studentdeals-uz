@@ -16,8 +16,13 @@ const nextConfig = {
   experimental: {},
   transpilePackages: ['@studentdeals/ui', '@studentdeals/types'],
   images: {
-    unoptimized: true,
-    domains: ["localhost"],
+    // Enable image optimization
+    unoptimized: false,
+    domains: ["localhost", "studentdeals.uz", "api.studentdeals.uz"],
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 60,
   },
   
   async headers() {
@@ -37,7 +42,7 @@ const nextConfig = {
       "form-action 'self'",
     ].join('; ');
 
-    const headers = [
+    const securityHeaders = [
       {
         key: 'Content-Security-Policy',
         value: csp,
@@ -70,16 +75,85 @@ const nextConfig = {
 
     // HSTS только в production
     if (isProd) {
-      headers.push({
+      securityHeaders.push({
         key: 'Strict-Transport-Security',
         value: 'max-age=31536000; includeSubDomains; preload',
       });
     }
 
     return [
+      // Security headers for all routes
       {
         source: '/(.*)',
-        headers,
+        headers: securityHeaders,
+      },
+      // Long cache for static assets (1 year, immutable)
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // Cache for images (1 year)
+      {
+        source: '/_next/image/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // Cache for public static files (1 year)
+      {
+        source: '/icons/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/images/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // Cache for fonts (1 year)
+      {
+        source: '/fonts/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // Cache for manifest and service worker (1 day)
+      {
+        source: '/manifest.json',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, must-revalidate',
+          },
+        ],
+      },
+      {
+        source: '/sw.js',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate',
+          },
+        ],
       },
     ];
   },
