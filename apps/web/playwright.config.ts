@@ -39,6 +39,18 @@ export default defineConfig({
     video: 'retain-on-failure',
   },
 
+  /* Visual regression testing settings */
+  expect: {
+    toHaveScreenshot: {
+      // Maximum number of pixels that can differ
+      maxDiffPixels: 100,
+      // Threshold for pixel difference (0-1)
+      threshold: 0.2,
+      // Animations should be disabled
+      animations: 'disabled',
+    },
+  },
+
   /* Global setup for MSW */
   globalSetup: require.resolve('./e2e/global-setup.ts'),
 
