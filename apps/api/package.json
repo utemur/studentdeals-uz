@@ -10,7 +10,8 @@
     "start:dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules src/main.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "db:check": "prisma validate && prisma format && prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.20",
