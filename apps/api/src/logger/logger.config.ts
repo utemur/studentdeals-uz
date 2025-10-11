@@ -1,6 +1,6 @@
 import { Params } from 'nestjs-pino';
 import { Request } from 'express';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 
 /**
  * Pino Logger Configuration
@@ -85,15 +85,15 @@ const serializers = {
 /**
  * Generate a unique request ID
  */
-function genReqId(req: Request): string {
+function genReqId(req: any): string {
   // Use existing request ID from header (from load balancer, proxy, etc.)
-  const existingId = req.headers['x-request-id'] as string;
+  const existingId = req.headers?.['x-request-id'] as string;
   if (existingId) {
     return existingId;
   }
   
   // Generate new UUID
-  return uuidv4();
+  return randomUUID();
 }
 
 /**

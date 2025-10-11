@@ -10,7 +10,6 @@ import {
 import { Request } from 'express';
 import { FeedbackService } from './feedback.service';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 
 @Controller('feedback')
@@ -23,7 +22,7 @@ export class FeedbackController {
     @Body(ValidationPipe) dto: CreateFeedbackDto,
     @Req() req: Request
   ) {
-    const userId = req.user?.['sub'];
+    const userId = (req.user as any)?.sub;
     const userAgent = req.headers['user-agent'];
 
     const feedback = await this.feedbackService.create(dto, userId, userAgent);
@@ -36,9 +35,12 @@ export class FeedbackController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(OptionalJwtAuthGuard)
   async findMy(@Req() req: Request) {
-    const userId = req.user?.['sub'];
+    const userId = (req.user as any)?.sub;
+    if (!userId) {
+      return [];
+    }
     return this.feedbackService.findAll(userId);
   }
 
