@@ -9,16 +9,16 @@ import { LoginDto } from './dto/login.dto';
 import { AuthTokens } from './types';
 
 // Temporary in-memory storage for development
-const users: Array<{ id: string; email: string; passwordHash: string; emailVerifiedAt: string | null; createdAt: string; updatedAt: string }> = [];
+const users: Array<{ id: string; email: string; passwordHash: string; role: string; emailVerifiedAt: string | null; createdAt: string; updatedAt: string }> = [];
 const verificationTokens: Array<{ id: string; userId: string; token: string; expiresAt: string; usedAt: string | null }> = [];
 
 @Injectable()
 export class AuthService {
   constructor(private mailerService: MailerService) {}
 
-  private signAccessToken(userId: string, email: string): string {
+  private signAccessToken(userId: string, email: string, role: string): string {
     const secret = process.env.JWT_SECRET || 'dev_secret_change_me';
-    return jwt.sign({ sub: userId, email }, secret, { expiresIn: '30m' });
+    return jwt.sign({ sub: userId, email, role }, secret, { expiresIn: '30m' });
   }
 
   private generateVerificationToken(): string {
@@ -34,6 +34,7 @@ export class AuthService {
       id: `user_${Date.now()}`,
       email: dto.email.toLowerCase(),
       passwordHash,
+      role: 'USER', // Default role
       emailVerifiedAt: null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -73,7 +74,7 @@ export class AuthService {
     const ok = await bcrypt.compare(dto.password, user.passwordHash);
     if (!ok) throw new UnauthorizedException('Invalid credentials');
 
-    const accessToken = this.signAccessToken(user.id, user.email);
+    const accessToken = this.signAccessToken(user.id, user.email, user.role);
     return { accessToken };
   }
 
@@ -84,10 +85,36 @@ export class AuthService {
     return {
       id: user.id,
       email: user.email,
+      role: user.role,
       emailVerifiedAt: user.emailVerifiedAt,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
+  }
+
+  // Get all users (admin only)
+  async getAllUsers() {
+    return users.map(u => ({
+      id: u.id,
+      email: u.email,
+      role: u.role,
+      emailVerifiedAt: u.emailVerifiedAt,
+      createdAt: u.createdAt,
+    }));
+  }
+
+  // Search users by email (admin only)
+  async searchUsers(query: string) {
+    const lowerQuery = query.toLowerCase();
+    return users
+      .filter(u => u.email.toLowerCase().includes(lowerQuery))
+      .map(u => ({
+        id: u.id,
+        email: u.email,
+        role: u.role,
+        emailVerifiedAt: u.emailVerifiedAt,
+        createdAt: u.createdAt,
+      }));
   }
 
   async verifyEmail(token: string): Promise<{ success: boolean; message: string }> {

@@ -10,10 +10,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
 model User {
   id              String                   @id @default(cuid())
   email           String                   @unique
   passwordHash    String
+  role            UserRole                 @default(USER)
   emailVerifiedAt DateTime?
   createdAt       DateTime                 @default(now())
   updatedAt       DateTime                 @updatedAt
@@ -22,6 +28,7 @@ model User {
 
   // Indexes for performance
   @@index([email]) // Redundant but explicit for clarity
+  @@index([role]) // For finding users by role
   @@index([emailVerifiedAt]) // For finding verified/unverified users
   @@index([createdAt]) // For user analytics and pagination
   @@map("users")

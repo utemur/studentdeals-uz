@@ -8,6 +8,7 @@ interface UserMenuProps {
   user: {
     id: string;
     email: string;
+    role?: string;
     emailVerifiedAt: string | null;
     createdAt: string;
     updatedAt: string;
@@ -97,6 +98,18 @@ export default function UserMenu({ user, locale }: UserMenuProps) {
               >
                 Личный кабинет
               </button>
+              
+              {user.role === 'ADMIN' && (
+                <button
+                  onClick={() => {
+                    router.push(`/${locale}/admin`);
+                    setIsOpen(false);
+                  }}
+                  className="block w-full text-left px-4 py-2 text-sm text-purple-600 hover:bg-gray-100"
+                >
+                  👑 Админ-панель
+                </button>
+              )}
               
               <button
                 onClick={handleLogout}
