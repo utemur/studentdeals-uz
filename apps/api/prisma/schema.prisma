@@ -18,6 +18,7 @@ model User {
   createdAt       DateTime                 @default(now())
   updatedAt       DateTime                 @updatedAt
   tokens          EmailVerificationToken[]
+  feedback        Feedback[]
 
   // Indexes for performance
   @@index([email]) // Redundant but explicit for clarity
@@ -42,4 +43,22 @@ model EmailVerificationToken {
   @@index([userId, expiresAt]) // Composite: user's active tokens
   @@index([userId, usedAt]) // Composite: user's token usage
   @@map("email_verification_tokens")
+}
+
+model Feedback {
+  id        String    @id @default(cuid())
+  userId    String?   // Nullable - allow anonymous feedback
+  rating    Int       // 1-5 star rating
+  message   String?   // Optional free text feedback
+  page      String?   // Page/context where feedback was submitted
+  userAgent String?   // Browser/device info
+  createdAt DateTime  @default(now())
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  // Indexes for performance
+  @@index([userId]) // For finding feedback by user
+  @@index([rating]) // For analytics by rating
+  @@index([createdAt]) // For chronological queries
+  @@index([userId, createdAt]) // Composite: user's feedback over time
+  @@map("feedback")
 }

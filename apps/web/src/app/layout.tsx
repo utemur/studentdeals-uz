@@ -4,6 +4,7 @@ import { AxeAccessibility } from "@/components/AxeAccessibility";
 import { Analytics } from "@/components/Analytics";
 import { CookieConsent } from "@/components/CookieConsent";
 import { WebVitals } from "@/components/WebVitals";
+import { FeedbackWidget } from "@/components/FeedbackWidget";
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://studentdeals.uz';
 
@@ -76,6 +77,7 @@ export default function RootLayout({
         <Analytics />
         <WebVitals />
         <CookieConsent />
+        <FeedbackWidget />
         {children}
       </body>
     </html>
