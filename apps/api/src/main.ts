@@ -4,49 +4,18 @@ import './instrument';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { WinstonModule } from 'nest-winston';
-import * as winston from 'winston';
+import { Logger } from 'nestjs-pino';
 import helmet from 'helmet';
 import compression from 'compression';
 
 async function bootstrap() {
-  // Winston logger configuration
-  const winstonLogger = WinstonModule.createLogger({
-    transports: [
-      new winston.transports.Console({
-        format: winston.format.combine(
-          winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-          winston.format.errors({ stack: true }),
-          winston.format.splat(),
-          winston.format.json(),
-        ),
-      }),
-      // File transport for production
-      ...(process.env.NODE_ENV === 'production'
-        ? [
-            new winston.transports.File({
-              filename: 'logs/error.log',
-              level: 'error',
-              format: winston.format.combine(
-                winston.format.timestamp(),
-                winston.format.json(),
-              ),
-            }),
-            new winston.transports.File({
-              filename: 'logs/combined.log',
-              format: winston.format.combine(
-                winston.format.timestamp(),
-                winston.format.json(),
-              ),
-            }),
-          ]
-        : []),
-    ],
-  });
-
   const app = await NestFactory.create(AppModule, {
-    logger: winstonLogger,
+    bufferLogs: true,
   });
+  
+  // Use Pino logger
+  app.useLogger(app.get(Logger));
+  app.flushLogs();
 
   // Trust proxy (for Render/Cloudflare)
   const expressApp = app.getHttpAdapter().getInstance();

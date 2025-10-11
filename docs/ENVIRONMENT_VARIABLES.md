@@ -48,6 +48,9 @@ SENTRY_RELEASE=
 # Application
 NODE_ENV=development
 PORT=3001
+
+# Logging
+LOG_LEVEL=debug
 FRONTEND_URL=http://localhost:3000
 ```
 
