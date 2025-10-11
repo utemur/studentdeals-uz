@@ -22,7 +22,9 @@
     "dev:api": "pnpm dev --filter api",
     "build:api": "pnpm build --filter api",
     "start:api": "pnpm start --filter api",
-    "prisma:studio": "pnpm --filter api dlx prisma studio"
+    "prisma:studio": "pnpm --filter api dlx prisma studio",
+    "release": "node scripts/release.js",
+    "release:tag": "node scripts/release.js --tag"
   },
   "devDependencies": {
     "turbo": "^1.12.4",

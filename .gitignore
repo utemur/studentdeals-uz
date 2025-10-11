@@ -26,3 +26,4 @@ playwright/.cache/
 
 # Sentry
 .sentryclirc
+.sentry-release
