@@ -1,12 +1,15 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { ConfigService } from '@nestjs/config';
+import { PrismaClient, Prisma } from '@prisma/client';
 import * as Sentry from '@sentry/nestjs';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
-  constructor() {
+  private extendedClient: any;
+
+  constructor(private configService: ConfigService) {
     super({
-      log: process.env.NODE_ENV === 'production' 
+      log: configService.get('NODE_ENV') === 'production' 
         ? ['error', 'warn']
         : ['query', 'error', 'warn'],
     });
@@ -15,55 +18,69 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   async onModuleInit() {
     await this.$connect();
 
-    // Add Sentry middleware for Prisma query tracing
-    // @ts-ignore - $use is available but not in types
-    this.$use(async (params: any, next: any) => {
-      const span = Sentry.startInactiveSpan({
-        op: 'db.query',
-        name: `${params.model}.${params.action}`,
-        attributes: {
-          'db.system': 'postgresql',
-          'db.operation': params.action,
-          'db.name': params.model,
-        },
-      });
+    // Create Sentry extension for query tracing
+    const sentryExt = Prisma.defineExtension({
+      query: {
+        $allModels: {
+          $allOperations({ args, query, model, operation }) {
+            const span = Sentry.startInactiveSpan({
+              op: 'db.query',
+              name: `${model}.${operation}`,
+              attributes: {
+                'db.system': 'postgresql',
+                'db.operation': operation,
+                'db.name': model,
+              },
+            });
 
-      try {
-        const result = await next(params);
-        span?.end();
-        return result;
-      } catch (error) {
-        span?.end();
-        // Capture error in Sentry
-        Sentry.captureException(error, {
-          tags: {
-            prisma_model: params.model,
-            prisma_action: params.action,
+            try {
+              const result = query(args);
+              span?.end();
+              return result;
+            } catch (error) {
+              span?.end();
+              // Capture error in Sentry
+              Sentry.captureException(error, {
+                tags: {
+                  prisma_model: model,
+                  prisma_action: operation,
+                },
+              });
+              throw error;
+            }
           },
-        });
-        throw error;
-      }
+        },
+      },
     });
 
-    // Log slow queries in development
-    if (process.env.NODE_ENV !== 'production') {
-      // @ts-ignore - $use is available but not in types
-      this.$use(async (params: any, next: any) => {
-        const before = Date.now();
-        const result = await next(params);
-        const after = Date.now();
-        const duration = after - before;
+    // Create logging extension for development
+    const isProduction = this.configService.get('NODE_ENV') === 'production';
+    const logExt = Prisma.defineExtension({
+      query: {
+        $allModels: {
+          $allOperations({ args, query, model, operation }) {
+            const start = Date.now();
+            return query(args).finally(() => {
+              if (!isProduction) {
+                const duration = Date.now() - start;
+                if (duration > 100) {
+                  console.warn(
+                    `⚠️  Slow query detected: ${model}.${operation} took ${duration}ms`
+                  );
+                }
+                console.log(`[PRISMA] ${model}.${operation} in ${duration}ms`);
+              }
+            });
+          },
+        },
+      },
+    });
 
-        // Log queries that take more than 100ms
-        if (duration > 100) {
-          console.warn(
-            `⚠️  Slow query detected: ${params.model}.${params.action} took ${duration}ms`
-          );
-        }
+    // Apply extensions
+    this.extendedClient = this.$extends(sentryExt).$extends(logExt);
 
-        return result;
-      });
-    }
+    // Forward all methods to the extended client
+    Object.assign(this, this.extendedClient);
   }
 
   async onModuleDestroy() {

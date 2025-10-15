@@ -1,290 +1,103 @@
-# Prisma Setup для Supabase
+# Prisma Setup Guide
 
-## Настройка подключения к Supabase
+This document outlines the Prisma setup and configuration for the StudentDeals API.
 
-### 1. Создайте .env файл в apps/api/
-```bash
+## Prisma Version
+
+We use **Prisma v6** with the latest extensions API. The old `$use` middleware has been removed in Prisma v6.
+
+## Key Changes from Prisma v5 to v6
+
+### ❌ Removed: `$use` Middleware
+```typescript
+// OLD (Prisma v5) - NO LONGER WORKS
+this.$use(async (params, next) => {
+  // middleware logic
+});
+```
+
+### ✅ New: `$extends` Extensions
+```typescript
+// NEW (Prisma v6) - Use extensions
+const logExt = Prisma.defineExtension({
+  query: {
+    $allModels: {
+      $allOperations({ args, query, model, operation }) {
+        const start = Date.now();
+        return query(args).finally(() => {
+          console.log(`[PRISMA] ${model}.${operation} in ${Date.now() - start}ms`);
+        });
+      }
+    }
+  }
+});
+
+const extended = this.$extends(logExt);
+```
+
+## Current Implementation
+
+Our `PrismaService` uses Prisma v6 extensions for:
+
+1. **Sentry Tracing**: Automatic span creation for all database queries
+2. **Query Logging**: Development-only query timing and slow query warnings
+3. **Error Handling**: Automatic error capture in Sentry with context
+
+### PrismaService Features
+
+- **ConfigService Integration**: Uses `ConfigService` to detect environment
+- **Extension Chaining**: Combines multiple extensions using `$extends()`
+- **Method Forwarding**: Uses `Object.assign()` to forward all methods to extended client
+- **Type Safety**: Maintains full TypeScript support
+
+## Usage
+
+```typescript
+// In your service
+constructor(private prisma: PrismaService) {}
+
+async getUsers() {
+  // All queries are automatically traced and logged
+  return this.prisma.user.findMany();
+}
+```
+
+## Environment Variables
+
+```env
 # Database
-DATABASE_URL="postgresql://postgres:greeniceginG8$@db.ktdgrtkbbrddbmlflcop.supabase.co:5432/postgres"
+DATABASE_URL="postgresql://username:password@localhost:5432/studentdeals"
 
-# Server
-PORT=3001
-NODE_ENV=development
+# Environment
+NODE_ENV="development" # or "production"
 ```
 
-### 2. Установите зависимости
-```bash
-pnpm install
-```
+## Development vs Production
 
-### 3. Сгенерируйте Prisma Client
-```bash
-cd apps/api
-npx prisma generate
-```
-
-### 4. Примените миграции к Supabase
-```bash
-cd apps/api
-npx prisma migrate deploy
-```
-
-### 5. Проверьте подключение
-```bash
-cd apps/api
-npx prisma db pull
-```
-
-## Модели данных
-
-### User
-- `id` - уникальный идентификатор (cuid)
-- `email` - email пользователя (уникальный)
-- `passwordHash` - хеш пароля
-- `emailVerifiedAt` - дата верификации email
-- `createdAt` - дата создания
-- `updatedAt` - дата обновления
-
-### EmailVerificationToken
-- `id` - уникальный идентификатор (cuid)
-- `userId` - ID пользователя (внешний ключ)
-- `token` - токен верификации (уникальный)
-- `expiresAt` - дата истечения токена
-- `usedAt` - дата использования токена
-
-## Полезные команды
-
-### Prisma Studio
-```bash
-pnpm prisma:studio
-```
-
-### Создание новой миграции
-```bash
-cd apps/api
-npx prisma migrate dev --name migration_name
-```
-
-### Сброс базы данных
-```bash
-cd apps/api
-npx prisma migrate reset
-```
-
-### Просмотр схемы
-```bash
-cd apps/api
-npx prisma db pull
-```
-
-## Структура файлов
-
-```
-apps/api/
-├── prisma/
-│   ├── schema.prisma          # Схема базы данных
-│   └── migrations/            # Миграции
-│       ├── 20241206_init/
-│       │   └── migration.sql  # SQL миграция
-│       └── migration_lock.toml
-├── src/
-│   ├── prisma.service.ts      # Prisma сервис
-│   └── ...
-└── .env                       # Переменные окружения
-```
-
-## Email Verification Testing
-
-### Локальное тестирование с MailHog
-
-MailHog - это SMTP сервер для тестирования email локально без отправки реальных писем.
-
-#### 1. Запуск MailHog в Docker
-
-```bash
-# Запустить MailHog контейнер
-docker run -d \
-  --name mailhog \
-  -p 1025:1025 \
-  -p 8025:8025 \
-  mailhog/mailhog
-
-# Проверить что контейнер запущен
-docker ps | grep mailhog
-```
-
-**Порты:**
-- `1025` - SMTP сервер (для отправки писем)
-- `8025` - Web UI (для просмотра писем)
-
-#### 2. Настройка ENV для MailHog
-
-Создайте `apps/api/.env`:
-```bash
-# SMTP Configuration (MailHog)
-SMTP_HOST=localhost
-SMTP_PORT=1025
-SMTP_USER=
-SMTP_PASS=
-SMTP_FROM=noreply@studentdeals.uz
-APP_URL=http://localhost:3000
-```
-
-#### 3. Тестирование отправки email
-
-```bash
-# 1. Запустите API
-cd apps/api
-pnpm build
-PORT=3001 node dist/main.js
-
-# 2. Зарегистрируйте пользователя
-curl -X POST http://localhost:3001/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"password123"}'
-
-# 3. Откройте MailHog Web UI
-open http://localhost:8025
-
-# 4. Вы должны увидеть письмо с подтверждением
-```
-
-#### 4. Проверка verification flow
-
-```bash
-# 1. Скопируйте токен из письма в MailHog
-# Пример: http://localhost:3000/ru/verify?token=abc123...
-
-# 2. Откройте ссылку в браузере
-open "http://localhost:3000/ru/verify?token=<TOKEN>"
-
-# 3. Или проверьте через API
-curl "http://localhost:3001/auth/verify?token=<TOKEN>"
-
-# Успешный ответ:
-# {"success":true,"message":"Email verified successfully"}
-
-# Истёкший токен (>24h):
-# {"statusCode":400,"message":"Token expired"}
-
-# Уже использованный токен:
-# {"statusCode":400,"message":"Token already used"}
-```
-
-#### 5. Остановка MailHog
-
-```bash
-# Остановить контейнер
-docker stop mailhog
-
-# Удалить контейнер
-docker rm mailhog
-```
-
-### Production SMTP Configuration
-
-Для production используйте реальный SMTP сервис:
-
-#### Gmail (для тестирования)
-
-```bash
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your-email@gmail.com
-SMTP_PASS=your-app-password  # Не обычный пароль! Используйте App Password
-SMTP_FROM=noreply@studentdeals.uz
-APP_URL=https://studentdeals.uz
-```
-
-**Важно:** Для Gmail нужно создать App Password:
-1. Google Account → Security → 2-Step Verification
-2. App passwords → Generate
-3. Используйте сгенерированный пароль
-
-#### SendGrid (рекомендуется для production)
-
-```bash
-SMTP_HOST=smtp.sendgrid.net
-SMTP_PORT=587
-SMTP_USER=apikey
-SMTP_PASS=<your-sendgrid-api-key>
-SMTP_FROM=noreply@studentdeals.uz
-APP_URL=https://studentdeals.uz
-```
-
-#### Mailgun
-
-```bash
-SMTP_HOST=smtp.mailgun.org
-SMTP_PORT=587
-SMTP_USER=postmaster@your-domain.mailgun.org
-SMTP_PASS=<your-mailgun-password>
-SMTP_FROM=noreply@studentdeals.uz
-APP_URL=https://studentdeals.uz
-```
-
-## Миграции
-
-### Создание новой миграции
-
-```bash
-cd apps/api
-
-# 1. Обновите schema.prisma
-# 2. Создайте миграцию
-npx prisma migrate dev --name add_new_field
-
-# 3. Примените к production
-npx prisma migrate deploy
-```
-
-### Просмотр статуса миграций
-
-```bash
-cd apps/api
-npx prisma migrate status
-```
-
-### Откат миграции
-
-```bash
-cd apps/api
-
-# Откатить последнюю миграцию
-npx prisma migrate resolve --rolled-back <migration-name>
-
-# Сбросить всю базу (ОСТОРОЖНО!)
-npx prisma migrate reset
-```
+- **Development**: Full query logging, slow query warnings, detailed Sentry spans
+- **Production**: Error logging only, optimized Sentry spans
 
 ## Troubleshooting
 
-### Ошибка подключения к базе данных
-1. Проверьте строку подключения в .env
-2. Убедитесь, что Supabase проект активен
-3. Проверьте настройки сети и файрвола
+### "this.$use is not a function"
+This error occurs when using Prisma v6 with old v5 middleware code. Update to use `$extends` instead.
 
-### Ошибка генерации Prisma Client
-1. Убедитесь, что schema.prisma корректен
-2. Проверьте версии @prisma/client и prisma
-3. Очистите node_modules и переустановите зависимости
+### Extension Not Working
+Ensure you're calling `Object.assign(this, this.extendedClient)` in `onModuleInit()`.
 
-### Email не отправляется
+### Type Errors
+Make sure to run `pnpm prisma generate` after schema changes.
 
-**Локально (MailHog):**
-1. Проверьте что MailHog запущен: `docker ps | grep mailhog`
-2. Проверьте порт 1025: `nc -zv localhost 1025`
-3. Проверьте логи API: должно быть "✅ Verification email sent"
+## Migration Checklist
 
-**Production:**
-1. Проверьте SMTP credentials в Render
-2. Проверьте логи Render на ошибки SMTP
-3. Проверьте что SMTP_HOST и SMTP_PORT корректны
-4. Для Gmail: убедитесь что используете App Password
+- [x] Remove all `$use` middleware calls
+- [x] Implement equivalent functionality with `$extends`
+- [x] Update PrismaService to use ConfigService
+- [x] Add proper error handling
+- [x] Maintain type safety
+- [x] Test in development and production
 
-### Токен верификации не работает
+## Resources
 
-1. Проверьте что токен не истёк (24 часа)
-2. Проверьте что токен не был использован
-3. Проверьте формат URL: `/auth/verify?token=<TOKEN>`
-4. Проверьте логи API на ошибки
+- [Prisma Extensions Documentation](https://www.prisma.io/docs/concepts/components/prisma-client/client-extensions)
+- [Prisma v6 Migration Guide](https://www.prisma.io/docs/guides/upgrade-guides/upgrading-versions/upgrading-to-prisma-6)

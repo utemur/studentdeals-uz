@@ -13,6 +13,7 @@ import { EmailPreviewController } from './email/email-preview.controller';
 import { FeedbackModule } from './feedback/feedback.module';
 import { AdminModule } from './admin/admin.module';
 import { MonitoringModule } from './monitoring/monitoring.module';
+import { PrismaService } from './prisma.service';
 import { pinoConfig } from './logger/logger.config';
 
 @Module({
@@ -40,6 +41,7 @@ import { pinoConfig } from './logger/logger.config';
     ),
   ],
   providers: [
+    PrismaService,
     {
       provide: APP_FILTER,
       useClass: SentryGlobalFilter,
