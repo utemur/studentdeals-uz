@@ -24,11 +24,22 @@
     "start:api": "pnpm start --filter api",
     "prisma:studio": "pnpm --filter api dlx prisma studio",
     "release": "node scripts/release.js",
-    "release:tag": "node scripts/release.js --tag"
+    "release:tag": "node scripts/release.js --tag",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:headed": "playwright test --headed",
+    "migrate:feedback": "pnpm --filter api exec prisma migrate dev --name add_feedback",
+    "dev:all": "concurrently \"pnpm dev:api\" \"pnpm dev:web\"",
+    "health:check": "curl -s http://localhost:3001/health | jq",
+    "health:db": "curl -s http://localhost:3001/health/db | jq",
+    "setup:env": "cp apps/web/env.local.example apps/web/.env.local && cp apps/api/env.example apps/api/.env"
   },
   "devDependencies": {
     "turbo": "^1.12.4",
     "@types/node": "^20.11.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "@playwright/test": "^1.40.0",
+    "concurrently": "^8.2.2"
   }
 }

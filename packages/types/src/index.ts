@@ -1,11 +1,6 @@
 // User types
-export interface UserDTO {
-  id: string;
-  email: string;
-  emailVerifiedAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
+export * from './user';
+import { UserDTO } from './user';
 
 // Auth types
 export interface LoginRequest {

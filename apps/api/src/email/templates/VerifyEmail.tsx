@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Text, Button, Heading, Section, Code } from '@react-email/components';
+import { Text, Button, Heading, Section } from '@react-email/components';
 import { EmailLayout } from './EmailLayout';
 
 interface VerifyEmailProps {
@@ -65,7 +65,7 @@ export function VerifyEmail({ verificationUrl, verificationCode, locale = 'ru' }
             {text.codeLabel}
           </Text>
           <Section style={codeContainer}>
-            <Code style={code}>{verificationCode}</Code>
+            <Text style={code}>{verificationCode}</Text>
           </Section>
         </>
       )}

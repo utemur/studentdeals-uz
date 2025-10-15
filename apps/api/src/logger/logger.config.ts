@@ -138,16 +138,16 @@ export const pinoConfig: Params = {
     },
     
     // Custom log message
-    customSuccessMessage: (req: Request, res: any) => {
-      return `${req.method} ${req.url} - ${res.statusCode}`;
+    customSuccessMessage: (req: any, res: any, responseTime: number) => {
+      return `${req.method} ${req.url} - ${res.statusCode} (${responseTime}ms)`;
     },
     
-    customErrorMessage: (req: Request, res: any, err: Error) => {
+    customErrorMessage: (req: any, res: any, err: Error) => {
       return `${req.method} ${req.url} - ${res.statusCode} - ${err.message}`;
     },
     
     // Log all requests (even successful ones)
-    customLogLevel: (req: Request, res: any, err?: Error) => {
+    customLogLevel: (req: any, res: any, err?: Error) => {
       if (err || res.statusCode >= 500) {
         return 'error';
       }
@@ -170,7 +170,7 @@ export const pinoConfig: Params = {
     
     // Auto-logging
     autoLogging: {
-      ignore: (req: Request) => {
+      ignore: (req: any) => {
         // Don't log health checks (too noisy)
         return req.url === '/health' || req.url === '/health/db';
       },

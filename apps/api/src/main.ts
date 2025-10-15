@@ -32,39 +32,24 @@ async function bootstrap() {
   // Compression
   app.use(compression());
   
-  // CORS - Allow production, staging, and development domains
-  const allowedOrigins = [
-    // Production
-    'https://studentdeals.uz',
-    'https://www.studentdeals.uz',
-    // Staging
-    'https://staging.studentdeals.uz',
-    'https://studentdeals-uz-staging.vercel.app',
-    // Development
-    /^https?:\/\/localhost:\d+$/, // localhost with any port
-  ];
+  // CORS - Configure from environment variables
+  const allowedOriginsEnv = process.env.ALLOWED_ORIGINS || 'http://localhost:3000,https://studentdeals.uz,https://www.studentdeals.uz';
+  const allowedOrigins = allowedOriginsEnv.split(',').map(origin => origin.trim());
   
   app.enableCors({
     origin: (origin, callback) => {
       // Allow requests with no origin (like mobile apps or curl)
       if (!origin) return callback(null, true);
       
-      // Check if origin matches allowed patterns
-      const isAllowed = allowedOrigins.some(allowed => {
-        if (typeof allowed === 'string') {
-          return origin === allowed;
-        }
-        // RegExp pattern
-        return allowed.test(origin);
-      });
-      
-      if (isAllowed) {
+      // Check if origin is in allowed list
+      if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
+        console.log(`CORS blocked origin: ${origin}`);
         callback(new Error('Not allowed by CORS'));
       }
     },
-    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     credentials: true, // Allow credentials for auth
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   });

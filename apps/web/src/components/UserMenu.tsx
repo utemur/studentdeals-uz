@@ -1,58 +1,28 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Button } from '@studentdeals/ui';
+import { UserDTO } from '@studentdeals/types';
 
 interface UserMenuProps {
-  user: {
-    id: string;
-    email: string;
-    role?: string;
-    emailVerifiedAt: string | null;
-    createdAt: string;
-    updatedAt: string;
-  } | null;
+  user: UserDTO | null;
   locale: string;
 }
 
 export default function UserMenu({ user, locale }: UserMenuProps) {
-  const router = useRouter();
-  const [isOpen, setIsOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const handleLogout = async () => {
-    setLoading(true);
-    try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-      });
-      
-      router.push(`/${locale}`);
-      router.refresh();
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      setLoading(false);
-      setIsOpen(false);
-    }
-  };
-
   if (!user) {
     return (
       <div className="flex items-center gap-2">
         <Button
           variant="outline"
           size="sm"
-          onClick={() => router.push(`/${locale}/signin`)}
+          onClick={() => window.location.href = `/${locale}/signin`}
         >
           Войти
         </Button>
         <Button
           variant="primary"
           size="sm"
-          onClick={() => router.push(`/${locale}/signup`)}
+          onClick={() => window.location.href = `/${locale}/signup`}
         >
           Регистрация
         </Button>
@@ -61,67 +31,13 @@ export default function UserMenu({ user, locale }: UserMenuProps) {
   }
 
   return (
-    <div className="relative">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100 transition-colors"
-      >
-        <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold">
-          {user.email[0].toUpperCase()}
-        </div>
-        <span className="text-sm font-medium text-gray-700 hidden sm:block">
-          {user.email}
-        </span>
-      </button>
-
-      {isOpen && (
-        <>
-          <div
-            className="fixed inset-0 z-10"
-            onClick={() => setIsOpen(false)}
-          />
-          <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
-            <div className="py-1">
-              <div className="px-4 py-2 border-b">
-                <p className="text-sm font-medium text-gray-900">{user.email}</p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {user.emailVerifiedAt ? 'Email подтвержден' : 'Email не подтвержден'}
-                </p>
-              </div>
-              
-              <button
-                onClick={() => {
-                  router.push(`/${locale}/dashboard`);
-                  setIsOpen(false);
-                }}
-                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              >
-                Личный кабинет
-              </button>
-              
-              {user.role === 'ADMIN' && (
-                <button
-                  onClick={() => {
-                    router.push(`/${locale}/admin`);
-                    setIsOpen(false);
-                  }}
-                  className="block w-full text-left px-4 py-2 text-sm text-purple-600 hover:bg-gray-100"
-                >
-                  👑 Админ-панель
-                </button>
-              )}
-              
-              <button
-                onClick={handleLogout}
-                disabled={loading}
-                className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 border-t"
-              >
-                {loading ? 'Выход...' : 'Выйти'}
-              </button>
-            </div>
-          </div>
-        </>
-      )}
+    <div className="flex items-center gap-2">
+      <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold">
+        {user?.email && user.email.length > 0 ? user.email[0].toUpperCase() : 'U'}
+      </div>
+      <span className="text-sm font-medium text-gray-700 hidden sm:block">
+        {user?.email || 'Пользователь'}
+      </span>
     </div>
   );
 }

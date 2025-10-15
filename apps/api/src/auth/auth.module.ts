@@ -10,5 +10,6 @@ import { JwtStrategy } from './jwt.strategy';
   imports: [EmailModule],
   providers: [AuthService, MailerService, JwtStrategy], // PrismaService temporarily disabled
   controllers: [AuthController],
+  exports: [AuthService], // Export AuthService for use in other modules
 })
 export class AuthModule {}

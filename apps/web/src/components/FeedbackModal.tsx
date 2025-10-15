@@ -77,10 +77,14 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
       onClick={handleClose}
+      onKeyDown={(e) => e.key === 'Escape' && handleClose()}
+      role="dialog"
+      tabIndex={-1}
     >
       <div
         className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
       >
         {isSubmitted ? (
           // Success state
@@ -112,7 +116,7 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
 
             {/* Star Rating */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+              <label htmlFor="rating" className="block text-sm font-medium text-gray-700 mb-3">
                 Rate your experience *
               </label>
               <div className="flex gap-2 justify-center">

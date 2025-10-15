@@ -12,6 +12,7 @@ import { EmailModule } from './email/email.module';
 import { EmailPreviewController } from './email/email-preview.controller';
 import { FeedbackModule } from './feedback/feedback.module';
 import { AdminModule } from './admin/admin.module';
+import { MonitoringModule } from './monitoring/monitoring.module';
 import { pinoConfig } from './logger/logger.config';
 
 @Module({
@@ -27,6 +28,7 @@ import { pinoConfig } from './logger/logger.config';
     EmailModule,
     FeedbackModule,
     AdminModule,
+    MonitoringModule,
   ],
   controllers: [
     HealthController,

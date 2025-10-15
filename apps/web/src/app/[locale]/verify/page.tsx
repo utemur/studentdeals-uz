@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useParams } from 'next/navigation';
 import { Container, Card, CardHeader, CardContent } from '@studentdeals/ui';
 import { api } from '@/lib/api';
 
 type VerificationStatus = 'loading' | 'success' | 'expired' | 'invalid' | 'error';
 
-export default function VerifyPage() {
+function VerifyPageContent() {
   const searchParams = useSearchParams();
   const params = useParams();
   const locale = params.locale as string;
@@ -186,6 +186,14 @@ export default function VerifyPage() {
         </Card>
       </div>
     </Container>
+  );
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <VerifyPageContent />
+    </Suspense>
   );
 }
 

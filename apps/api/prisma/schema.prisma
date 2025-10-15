@@ -55,8 +55,9 @@ model EmailVerificationToken {
 model Feedback {
   id        String    @id @default(cuid())
   userId    String?   // Nullable - allow anonymous feedback
-  rating    Int       // 1-5 star rating
-  message   String?   // Optional free text feedback
+  email     String?   // Email for beta feedback (optional)
+  rating    Int?      // 1-5 star rating (nullable)
+  message   String    // Required message (5-2000 chars)
   page      String?   // Page/context where feedback was submitted
   userAgent String?   // Browser/device info
   createdAt DateTime  @default(now())
@@ -64,6 +65,7 @@ model Feedback {
 
   // Indexes for performance
   @@index([userId]) // For finding feedback by user
+  @@index([email]) // For finding feedback by email
   @@index([rating]) // For analytics by rating
   @@index([createdAt]) // For chronological queries
   @@index([userId, createdAt]) // Composite: user's feedback over time

@@ -24,7 +24,6 @@ Sentry.init({
   integrations: [
     // HTTP instrumentation for outgoing requests
     Sentry.httpIntegration({
-      tracing: true,
       // Track outgoing HTTP requests
       breadcrumbs: true,
     }),

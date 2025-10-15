@@ -1,8 +1,10 @@
 import Link from 'next/link';
-import { useLocale } from 'next-intl';
 
-export function Footer() {
-  const locale = useLocale();
+interface FooterProps {
+  locale: string;
+}
+
+export function Footer({ locale }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
   const footerLinks = {
@@ -33,16 +35,33 @@ export function Footer() {
   };
 
   return (
-    <footer className="bg-gray-900 text-gray-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <footer className="bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 text-gray-300 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-blue-600/20 to-purple-600/20"></div>
+        <div className="absolute top-10 left-10 w-32 h-32 bg-blue-500 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-10 right-10 w-40 h-40 bg-purple-500 rounded-full blur-3xl"></div>
+      </div>
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-1">
-            <h3 className="text-white text-xl font-bold mb-4">StudentDeals.uz</h3>
-            <p className="text-sm text-gray-400">
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                <span className="text-white font-bold text-xl">🎓</span>
+              </div>
+              <div>
+                <h3 className="text-white text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  StudentDeals.uz
+                </h3>
+                <p className="text-xs text-gray-400">Экономьте вместе с нами</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-400 leading-relaxed">
               {locale === 'ru' 
-                ? 'Лучшие предложения для студентов Узбекистана'
-                : 'O\'zbekiston talabalari uchun eng yaxshi takliflar'}
+                ? 'Лучшие предложения для студентов Узбекистана. Скидки до 70% на еду, развлечения, образование и многое другое!'
+                : 'O\'zbekiston talabalari uchun eng yaxshi takliflar. Ovqat, o\'yin-kulgi, ta\'lim va boshqalar uchun 70% gacha chegirmalar!'}
             </p>
           </div>
 

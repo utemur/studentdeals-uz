@@ -81,7 +81,7 @@ export class EmailService {
       ? '🎉 Добро пожаловать в StudentDeals.uz!'
       : '🎉 StudentDeals.uz ga xush kelibsiz!';
 
-    const html = render(
+    const html = await render(
       WelcomeEmail({ userName, locale })
     );
 
@@ -100,7 +100,7 @@ export class EmailService {
       ? '✉️ Подтвердите ваш email - StudentDeals.uz'
       : '✉️ Email manzilingizni tasdiqlang - StudentDeals.uz';
 
-    const html = render(
+    const html = await render(
       VerifyEmail({ verificationUrl, locale })
     );
 
@@ -119,7 +119,7 @@ export class EmailService {
       ? '🔒 Сброс пароля - StudentDeals.uz'
       : '🔒 Parolni tiklash - StudentDeals.uz';
 
-    const html = render(
+    const html = await render(
       ResetPasswordEmail({ resetUrl, locale })
     );
 

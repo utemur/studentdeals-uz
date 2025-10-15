@@ -47,13 +47,21 @@ export default async function AdminPage({ params, searchParams }: AdminPageProps
 
   return (
     <Container className="py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Admin Dashboard
-        </h1>
-        <p className="text-gray-600">
-          Manage users and view system statistics
-        </p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            👑 Admin Dashboard
+          </h1>
+          <p className="text-gray-600">
+            Manage users and view system statistics
+          </p>
+        </div>
+        <a
+          href={`/${params.locale}`}
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
+        >
+          ← {params.locale === 'ru' ? 'На сайт' : 'Saytga qaytish'}
+        </a>
       </div>
 
       {/* Stats Cards */}

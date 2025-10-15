@@ -14,12 +14,15 @@ export function AxeAccessibility() {
     }
 
     // Dynamically import axe-core to avoid including it in production bundle
-    import('@axe-core/react')
-      .then((axe) => {
-        const React = require('react');
-        const ReactDOM = require('react-dom');
+    const initAxe = async () => {
+      try {
+        const [axe, React, ReactDOM] = await Promise.all([
+          import('@axe-core/react'),
+          import('react'),
+          import('react-dom')
+        ]);
         
-        axe.default(React, ReactDOM, 1000, {
+        axe.default(React.default, ReactDOM.default, 1000, {
           // Configuration options
           rules: [
             {
@@ -46,10 +49,12 @@ export function AxeAccessibility() {
         });
 
         console.log('✅ Axe accessibility checker enabled');
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error('Failed to load axe-core:', error);
-      });
+      }
+    };
+
+    initAxe();
   }, []);
 
   return null;

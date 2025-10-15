@@ -6,8 +6,10 @@ import {
   Req,
   UseGuards,
   ValidationPipe,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
 import { FeedbackService } from './feedback.service';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
@@ -17,15 +19,17 @@ export class FeedbackController {
   constructor(private readonly feedbackService: FeedbackService) {}
 
   @Post()
-  @UseGuards(OptionalJwtAuthGuard)
+  @UseGuards(OptionalJwtAuthGuard, ThrottlerGuard)
+  @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 requests per minute
   async create(
     @Body(ValidationPipe) dto: CreateFeedbackDto,
     @Req() req: Request
   ) {
     const userId = (req.user as any)?.sub;
     const userAgent = req.headers['user-agent'];
+    const page = req.headers['referer'] || 'unknown';
 
-    const feedback = await this.feedbackService.create(dto, userId, userAgent);
+    const feedback = await this.feedbackService.create(dto, userId, userAgent, page);
 
     return {
       success: true,

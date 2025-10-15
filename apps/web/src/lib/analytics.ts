@@ -7,13 +7,28 @@ const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 
 // Check if tracking is allowed
 function isTrackingAllowed(): boolean {
+  // Skip in development to avoid webpack issues
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[Analytics] Development mode - tracking disabled');
+    return false;
+  }
+
+  // Check if we're in browser environment
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
   // Check Do Not Track
-  if (typeof navigator !== 'undefined') {
-    const dnt = navigator.doNotTrack || (window as any).doNotTrack || (navigator as any).msDoNotTrack;
-    if (dnt === '1' || dnt === 'yes') {
-      console.log('[Analytics] Do Not Track is enabled - tracking disabled');
-      return false;
+  try {
+    if (typeof navigator !== 'undefined') {
+      const dnt = navigator.doNotTrack || (window as any).doNotTrack || (navigator as any).msDoNotTrack;
+      if (dnt === '1' || dnt === 'yes') {
+        console.log('[Analytics] Do Not Track is enabled - tracking disabled');
+        return false;
+      }
     }
+  } catch (error) {
+    console.warn('[Analytics] Error checking Do Not Track:', error);
   }
 
   // Check if GA_ID is configured
@@ -23,12 +38,14 @@ function isTrackingAllowed(): boolean {
   }
 
   // Check consent (from localStorage or cookie)
-  if (typeof window !== 'undefined') {
+  try {
     const consent = localStorage.getItem('analytics_consent');
     if (consent === 'denied') {
       console.log('[Analytics] User denied consent - tracking disabled');
       return false;
     }
+  } catch (error) {
+    console.warn('[Analytics] Error checking consent:', error);
   }
 
   return true;
@@ -36,50 +53,58 @@ function isTrackingAllowed(): boolean {
 
 // Initialize Google Analytics
 export function initGA() {
-  if (!isTrackingAllowed()) {
-    return;
+  try {
+    if (!isTrackingAllowed()) {
+      return;
+    }
+
+    // Load gtag script
+    const script = document.createElement('script');
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+    script.async = true;
+    document.head.appendChild(script);
+
+    // Initialize gtag
+    (window as any).dataLayer = (window as any).dataLayer || [];
+    function gtag(...args: any[]) {
+      (window as any).dataLayer.push(args);
+    }
+    (window as any).gtag = gtag;
+
+    gtag('js', new Date());
+    gtag('config', GA_ID, {
+      page_path: window.location.pathname,
+      anonymize_ip: true, // Anonymize IP addresses
+      allow_google_signals: false, // Disable Google Signals (remarketing)
+      allow_ad_personalization_signals: false, // Disable ad personalization
+    });
+
+    // Set consent mode (default to denied, update based on user choice)
+    gtag('consent', 'default', {
+      analytics_storage: 'denied',
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+    });
+
+    console.log('[Analytics] Google Analytics initialized');
+  } catch (error) {
+    console.warn('[Analytics] Failed to initialize Google Analytics:', error);
   }
-
-  // Load gtag script
-  const script = document.createElement('script');
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
-  script.async = true;
-  document.head.appendChild(script);
-
-  // Initialize gtag
-  (window as any).dataLayer = (window as any).dataLayer || [];
-  function gtag(...args: any[]) {
-    (window as any).dataLayer.push(args);
-  }
-  (window as any).gtag = gtag;
-
-  gtag('js', new Date());
-  gtag('config', GA_ID, {
-    page_path: window.location.pathname,
-    anonymize_ip: true, // Anonymize IP addresses
-    allow_google_signals: false, // Disable Google Signals (remarketing)
-    allow_ad_personalization_signals: false, // Disable ad personalization
-  });
-
-  // Set consent mode (default to denied, update based on user choice)
-  gtag('consent', 'default', {
-    analytics_storage: 'denied',
-    ad_storage: 'denied',
-    ad_user_data: 'denied',
-    ad_personalization: 'denied',
-  });
-
-  console.log('[Analytics] Google Analytics initialized');
 }
 
 // Track page view
 export function trackPageView(url: string) {
-  if (!isTrackingAllowed()) return;
+  try {
+    if (!isTrackingAllowed()) return;
 
-  if (typeof window !== 'undefined' && (window as any).gtag) {
-    (window as any).gtag('config', GA_ID, {
-      page_path: url,
-    });
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('config', GA_ID, {
+        page_path: url,
+      });
+    }
+  } catch (error) {
+    console.warn('[Analytics] Failed to track page view:', error);
   }
 }
 
@@ -88,11 +113,15 @@ export function trackEvent(
   eventName: string,
   eventParams?: Record<string, any>
 ) {
-  if (!isTrackingAllowed()) return;
+  try {
+    if (!isTrackingAllowed()) return;
 
-  if (typeof window !== 'undefined' && (window as any).gtag) {
-    (window as any).gtag('event', eventName, eventParams);
-    console.log('[Analytics] Event tracked:', eventName, eventParams);
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', eventName, eventParams);
+      console.log('[Analytics] Event tracked:', eventName, eventParams);
+    }
+  } catch (error) {
+    console.warn('[Analytics] Failed to track event:', error);
   }
 }
 
@@ -131,21 +160,29 @@ export const analytics = {
 
   // Error events
   errorToast: (message: string, page?: string) => {
-    trackEvent('error_toast', {
-      error_message: message,
-      page_path: page || window.location.pathname,
-      timestamp: new Date().toISOString(),
-    });
+    try {
+      trackEvent('error_toast', {
+        error_message: message,
+        page_path: page || (typeof window !== 'undefined' ? window.location.pathname : ''),
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.warn('[Analytics] Failed to track error toast:', error);
+    }
   },
 
   apiError: (endpoint: string, statusCode: number, errorMessage?: string) => {
-    trackEvent('api_error', {
-      endpoint,
-      status_code: statusCode,
-      error_message: errorMessage,
-      page_path: window.location.pathname,
-      timestamp: new Date().toISOString(),
-    });
+    try {
+      trackEvent('api_error', {
+        endpoint,
+        status_code: statusCode,
+        error_message: errorMessage,
+        page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.warn('[Analytics] Failed to track API error:', error);
+    }
   },
 
   // User engagement events
@@ -178,39 +215,51 @@ export const analytics = {
 export const consent = {
   // Grant consent
   grant: () => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('analytics_consent', 'granted');
-      
-      if ((window as any).gtag) {
-        (window as any).gtag('consent', 'update', {
-          analytics_storage: 'granted',
-        });
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('analytics_consent', 'granted');
+        
+        if ((window as any).gtag) {
+          (window as any).gtag('consent', 'update', {
+            analytics_storage: 'granted',
+          });
+        }
+        
+        console.log('[Analytics] Consent granted');
       }
-      
-      console.log('[Analytics] Consent granted');
+    } catch (error) {
+      console.warn('[Analytics] Failed to grant consent:', error);
     }
   },
 
   // Deny consent
   deny: () => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('analytics_consent', 'denied');
-      
-      if ((window as any).gtag) {
-        (window as any).gtag('consent', 'update', {
-          analytics_storage: 'denied',
-        });
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('analytics_consent', 'denied');
+        
+        if ((window as any).gtag) {
+          (window as any).gtag('consent', 'update', {
+            analytics_storage: 'denied',
+          });
+        }
+        
+        console.log('[Analytics] Consent denied');
       }
-      
-      console.log('[Analytics] Consent denied');
+    } catch (error) {
+      console.warn('[Analytics] Failed to deny consent:', error);
     }
   },
 
   // Check consent status
   getStatus: (): 'granted' | 'denied' | 'unknown' => {
-    if (typeof window !== 'undefined') {
-      const status = localStorage.getItem('analytics_consent');
-      return (status as 'granted' | 'denied') || 'unknown';
+    try {
+      if (typeof window !== 'undefined') {
+        const status = localStorage.getItem('analytics_consent');
+        return (status as 'granted' | 'denied') || 'unknown';
+      }
+    } catch (error) {
+      console.warn('[Analytics] Failed to get consent status:', error);
     }
     return 'unknown';
   },

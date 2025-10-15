@@ -1,10 +1,25 @@
 import type { Metadata, Viewport } from "next";
+import { Inter, Montserrat } from 'next/font/google';
 import "./globals.css";
-import { AxeAccessibility } from "@/components/AxeAccessibility";
-import { Analytics } from "@/components/Analytics";
-import { CookieConsent } from "@/components/CookieConsent";
-import { WebVitals } from "@/components/WebVitals";
-import { FeedbackWidget } from "@/components/FeedbackWidget";
+import dynamic from 'next/dynamic';
+// Temporarily disable all dynamic imports to isolate the issue
+const WebVitals = () => null;
+const AxeAccessibility = () => null;
+const Analytics = () => null;
+const CookieConsent = () => null;
+const FeedbackWidget = () => null;
+
+const inter = Inter({
+  subsets: ['latin', 'cyrillic'],
+  variable: '--font-inter',
+  display: 'swap',
+});
+
+const montserrat = Montserrat({
+  subsets: ['latin', 'cyrillic'],
+  variable: '--font-montserrat',
+  display: 'swap',
+});
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://studentdeals.uz';
 
@@ -62,7 +77,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  themeColor: "#3b82f6",
+  themeColor: "#0891B2", // Silk Road Turquoise
 };
 
 export default function RootLayout({
@@ -71,8 +86,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html>
-      <body>
+    <html lang="ru" className={`${inter.variable} ${montserrat.variable}`}>
+      <body className={inter.className}>
         {process.env.NODE_ENV === 'development' && <AxeAccessibility />}
         <Analytics />
         <WebVitals />

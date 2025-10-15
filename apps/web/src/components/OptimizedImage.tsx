@@ -46,6 +46,7 @@ export function OptimizedImage({
   return (
     <Image
       {...props}
+      alt={props.alt || ''}
       sizes={sizes}
       // Enable modern image formats
       placeholder={props.placeholder || 'blur'}

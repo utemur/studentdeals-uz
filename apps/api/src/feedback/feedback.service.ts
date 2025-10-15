@@ -14,14 +14,16 @@ export class FeedbackService {
   async create(
     dto: CreateFeedbackDto,
     userId?: string,
-    userAgent?: string
+    userAgent?: string,
+    page?: string
   ) {
     this.logger.info(
       {
         userId,
+        email: dto.email,
         rating: dto.rating,
         hasMessage: !!dto.message,
-        page: dto.page,
+        page,
       },
       'Creating feedback'
     );
@@ -30,7 +32,8 @@ export class FeedbackService {
       data: {
         rating: dto.rating,
         message: dto.message,
-        page: dto.page,
+        email: dto.email,
+        page,
         userAgent,
         userId,
       },
@@ -76,7 +79,9 @@ export class FeedbackService {
       total,
       averageRating: avgRating._avg.rating || 0,
       distribution: ratingDistribution.reduce((acc, item) => {
-        acc[item.rating] = item._count.rating;
+        if (item.rating !== null) {
+          acc[item.rating] = item._count.rating;
+        }
         return acc;
       }, {} as Record<number, number>),
     };

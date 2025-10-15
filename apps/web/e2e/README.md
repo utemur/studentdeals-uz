@@ -503,7 +503,28 @@ test('test 2', async ({ page }) => {
 | Homepage | 6 tests | ✅ |
 | Authentication | 8 tests | ✅ |
 | Navigation | 5 tests | ✅ |
-| **Total** | **19 tests** | ✅ |
+| **Smoke Tests** | **20 tests** | ✅ |
+| **Total** | **39 tests** | ✅ |
+
+### Smoke Tests
+
+Comprehensive E2E smoke tests validate critical user flows:
+
+- ✅ **Health Checks** (2 tests)
+- ✅ **User Signup Flow** (3 tests)
+- ✅ **User Signin Flow** (3 tests)
+- ✅ **Authentication API** (3 tests)
+- ✅ **Email Verification** (2 tests)
+- ✅ **CORS Configuration** (2 tests)
+- ✅ **Admin Features** (2 tests)
+- ✅ **Performance** (2 tests)
+
+**Run Smoke Tests:**
+```bash
+pnpm --filter web exec playwright test e2e/smoke.spec.ts
+```
+
+**Documentation:** See [E2E Smoke Tests Guide](/docs/E2E_SMOKE_TESTS.md)
 
 ### Adding More Tests
 

@@ -3,26 +3,7 @@ import type { LoginRequest, RegisterRequest, AuthResponse, RegisterResponse, Use
 /**
  * Get API URL based on environment
  */
-function getApiUrl(): string {
-  // Explicit API URL override
-  if (process.env.NEXT_PUBLIC_API_URL) {
-    return process.env.NEXT_PUBLIC_API_URL;
-  }
-
-  // Environment-based resolution
-  const env = process.env.NEXT_PUBLIC_ENV || process.env.NODE_ENV;
-  
-  switch (env) {
-    case 'staging':
-      return 'https://api-staging.studentdeals.uz';
-    case 'production':
-      return 'https://studentdeals-uz.onrender.com';
-    default:
-      return 'http://localhost:3001';
-  }
-}
-
-const API_URL = getApiUrl();
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
 /**
  * Universal API helper
@@ -31,7 +12,7 @@ const API_URL = getApiUrl();
  * @returns Response data as JSON
  */
 export async function api(path: string, init?: RequestInit) {
-  const url = `${API_URL}${path}`;
+  const url = `${API_BASE}${path}`;
   
   const response = await fetch(url, {
     ...init,

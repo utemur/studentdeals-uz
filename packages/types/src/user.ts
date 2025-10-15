@@ -50,3 +50,14 @@ export interface UserProfile {
   university?: string;
   studentId?: string;
 }
+
+export interface UserDTO {
+  id: string;
+  email: string;
+  role?: UserRole | string;
+  emailVerifiedAt?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  firstName?: string;
+  lastName?: string;
+}

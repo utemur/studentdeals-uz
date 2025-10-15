@@ -1,43 +1,36 @@
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://studentdeals.uz';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://studentdeals.uz';
 
   return {
     rules: [
       {
         userAgent: '*',
-        allow: [
-          '/',
-          '/ru/',
-          '/uz/',
-          '/ru/privacy',
-          '/uz/privacy',
-          '/ru/terms',
-          '/uz/terms',
-        ],
+        allow: '/',
         disallow: [
-          '/api/',
-          '/_next/',
-          '/dashboard',
-          '/signin',
-          '/signup',
-          '/verify',
           '/admin',
+          '/admin/*',
+          '/api/*',
+          '/dashboard',
+          '/*?token=*', // Disallow verification/reset links
+          '/beta', // Beta page should be noindex
         ],
       },
       {
-        userAgent: 'Googlebot',
-        allow: '/',
-        crawlDelay: 0,
+        userAgent: 'GPTBot', // OpenAI bot
+        disallow: '/',
       },
       {
-        userAgent: 'Yandexbot',
-        allow: '/',
-        crawlDelay: 0,
+        userAgent: 'ChatGPT-User', // ChatGPT
+        disallow: '/',
+      },
+      {
+        userAgent: 'Google-Extended', // Google AI training
+        disallow: '/',
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,
+    host: baseUrl,
   };
 }
-

@@ -69,7 +69,7 @@ export function EmailLayout({ children, previewText, locale }: EmailLayoutProps)
 
           {/* Footer */}
           <Hr style={hr} />
-          <Section style={footer}>
+          <Section style={footerStyle}>
             <Text style={footerText}>
               {text.address}
             </Text>
@@ -128,7 +128,7 @@ const hr = {
   margin: '32px 0',
 };
 
-const footer = {
+const footerStyle = {
   padding: '0 48px',
   textAlign: 'center' as const,
 };
