@@ -1,5 +1,9 @@
 # Student Deals Uzbekistan
 
+[![CI](https://github.com/timsalley/StudentDeals.uz/actions/workflows/ci.yml/badge.svg)](https://github.com/timsalley/StudentDeals.uz/actions/workflows/ci.yml)
+[![Build Web](https://github.com/timsalley/StudentDeals.uz/actions/workflows/build-web.yml/badge.svg)](https://github.com/timsalley/StudentDeals.uz/actions/workflows/build-web.yml)
+[![E2E Tests](https://github.com/timsalley/StudentDeals.uz/actions/workflows/e2e.yml/badge.svg)](https://github.com/timsalley/StudentDeals.uz/actions/workflows/e2e.yml)
+
 Монорепозиторий для платформы студенческих предложений в Узбекистане, построенный с использованием pnpm и Turborepo.
 
 ## Структура проекта

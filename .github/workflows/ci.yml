@@ -216,7 +216,8 @@ jobs:
       - name: Build web app
         run: pnpm -C apps/web build
         env:
-          NEXT_PUBLIC_API_URL: https://studentdeals-uz.onrender.com
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'https://studentdeals-api.onrender.com' }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL || 'https://studentdeals.uz' }}
           NODE_ENV: production
 
       - name: Upload build artifacts

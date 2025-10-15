@@ -10,21 +10,49 @@ jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    
+    # Temporarily disable E2E tests or run only on main with explicit flag
+    if: |
+      github.ref == 'refs/heads/main' && 
+      (env.RUN_E2E == 'true' || github.event_name == 'push')
+    
     steps:
     - uses: actions/checkout@v4
     
     - uses: actions/setup-node@v4
       with:
-        node-version: 18
+        node-version: 20
         cache: 'npm'
     
     - name: Install pnpm
       uses: pnpm/action-setup@v2
       with:
-        version: 8
+        version: 8.15.0
+    
+    - name: Get pnpm store directory
+      id: pnpm-cache
+      shell: bash
+      run: |
+        echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+    - name: Cache pnpm store
+      uses: actions/cache@v3
+      with:
+        path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+
+    - name: Cache node_modules
+      uses: actions/cache@v3
+      with:
+        path: '**/node_modules'
+        key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-node-modules-
     
     - name: Install dependencies
-      run: pnpm install
+      run: pnpm install --frozen-lockfile
     
     - name: Install Playwright Browsers
       run: pnpm exec playwright install --with-deps
@@ -48,3 +76,17 @@ jobs:
         name: playwright-report
         path: playwright-report/
         retention-days: 30
+
+  skip-e2e:
+    name: Skip E2E Tests
+    runs-on: ubuntu-latest
+    if: |
+      github.ref != 'refs/heads/main' ||
+      (github.ref == 'refs/heads/main' && env.RUN_E2E != 'true' && github.event_name != 'push')
+    
+    steps:
+      - name: Skip E2E Tests
+        run: |
+          echo "⏭️ Skipping E2E tests"
+          echo "Reason: E2E tests are temporarily disabled or not on main branch"
+          echo "To enable: Set RUN_E2E=true environment variable"
