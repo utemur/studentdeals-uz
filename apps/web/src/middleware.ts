@@ -1,18 +1,35 @@
 import createMiddleware from "next-intl/middleware";
 import { NextRequest, NextResponse } from "next/server";
+import { locales, defaultLocale } from "./i18n";
 
 const intlMiddleware = createMiddleware({
-  locales: ["ru", "uz"],
-  defaultLocale: "ru",
+  locales,
+  defaultLocale,
 });
 
 export default function middleware(request: NextRequest) {
-  // Run next-intl middleware first
+  const { pathname } = request.nextUrl;
+  
+  // Exclude assets from locale handling
+  if (pathname.match(/^\/_next|favicon\.ico|robots\.txt|sitemap\.xml|sw\.js/)) {
+    return NextResponse.next();
+  }
+  
+  // Handle root path redirect to default locale
+  // This is needed for Vercel root domain to properly redirect to the default locale
+  if (pathname === "/") {
+    return NextResponse.redirect(new URL(`/${defaultLocale}`, request.url));
+  }
+  
+  // Handle paths without locale prefix (e.g., "/about" -> "/ru/about")
+  if (!pathname.startsWith("/ru") && !pathname.startsWith("/uz")) {
+    return NextResponse.redirect(new URL(`/${defaultLocale}${pathname}`, request.url));
+  }
+  
+  // Run next-intl middleware for locale-prefixed paths
   const response = intlMiddleware(request);
   
   // Add Cache-Control headers based on route type
-  const { pathname } = request.nextUrl;
-  
   // Dynamic pages (auth, dashboard) - short cache with stale-while-revalidate
   if (
     pathname.includes('/signin') ||
@@ -44,5 +61,12 @@ export default function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next|_vercel|.*\\..*).*)"],
+  matcher: [
+    // Match all pathnames except for
+    // - API routes
+    // - _next (Next.js internals)
+    // - _vercel (Vercel internals)
+    // - Static files (images, etc.)
+    "/((?!api|_next|_vercel|.*\\..*).*)",
+  ],
 };
