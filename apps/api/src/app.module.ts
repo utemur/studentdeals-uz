@@ -27,7 +27,7 @@ import { pinoConfig } from './logger/logger.config';
     }]),
     AuthModule,
     EmailModule,
-    FeedbackModule,
+    // FeedbackModule, // Temporarily disabled
     AdminModule,
     MonitoringModule,
   ],
@@ -41,7 +41,7 @@ import { pinoConfig } from './logger/logger.config';
     ),
   ],
   providers: [
-    PrismaService,
+    // PrismaService, // Temporarily disabled for testing
     {
       provide: APP_FILTER,
       useClass: SentryGlobalFilter,
