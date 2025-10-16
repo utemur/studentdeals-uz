@@ -1,26 +1,19 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+// apps/web/middleware.ts
+import createMiddleware from 'next-intl/middleware';
 
-const DEFAULT_LOCALE = 'ru' // основной язык
+// Используем встроенное middleware из next-intl
+export default createMiddleware({
+  // Доступные языки на сайте
+  locales: ['ru', 'en', 'uz'],
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
+  // Язык по умолчанию (редиректит с / → /ru)
+  defaultLocale: 'ru',
+});
 
-  // если путь уже содержит язык, пропускаем
-  if (/^\/(ru|en|uz)(\/|$)/.test(pathname)) {
-    return NextResponse.next()
-  }
-
-  // если корень сайта — редиректим на /ru
-  if (pathname === '/') {
-    const url = request.nextUrl.clone()
-    url.pathname = `/${DEFAULT_LOCALE}`
-    return NextResponse.redirect(url)
-  }
-
-  return NextResponse.next()
-}
-
+// Конфигурация: на какие маршруты распространяется middleware
 export const config = {
-  matcher: ['/((?!_next|api|.*\\..*).*)'],
-}
+  matcher: [
+    '/',                 // корень сайта
+    '/(ru|en|uz)/:path*' // все локализованные маршруты
+  ],
+};
