@@ -1,41 +1,54 @@
+// apps/web/sentry.edge.config.ts
 import * as Sentry from "@sentry/nextjs";
 
-const SENTRY_DSN = process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN;
-const ENVIRONMENT = process.env.NEXT_PUBLIC_ENVIRONMENT || process.env.NODE_ENV || 'development';
-const IS_PRODUCTION = ENVIRONMENT === 'production';
+/**
+ * В edge-рантайме НИЧЕГО не должно падать при импорте модуля.
+ * Поэтому:
+ *  - инициализируем Sentry только если есть валидный DSN
+ *  - весь вызов завернут в try/catch
+ *  - явно управляем enabled
+ */
 
-// Sample rates: 10% in production, 100% in development
-const TRACES_SAMPLE_RATE = IS_PRODUCTION 
-  ? parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE || '0.1')
+const DSN =
+  process.env.SENTRY_DSN ||
+  process.env.NEXT_PUBLIC_SENTRY_DSN ||
+  "";
+
+const ENV =
+  process.env.NEXT_PUBLIC_ENVIRONMENT ||
+  process.env.NODE_ENV ||
+  "development";
+
+const IS_PROD = ENV === "production";
+
+/** В проде можно поднять до 0.1–0.2 позже */
+const TRACES_SAMPLE_RATE = IS_PROD
+  ? Number.parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE || "0")
   : 1.0;
 
-Sentry.init({
-  dsn: SENTRY_DSN,
-  
-  environment: ENVIRONMENT,
+try {
+  if (DSN) {
+    Sentry.init({
+      dsn: DSN,
+      environment: ENV,
+      enabled: true,                // включаем явно только при наличии DSN
+      tracesSampleRate: TRACES_SAMPLE_RATE,
+      debug: !IS_PROD && process.env.SENTRY_DEBUG === "true",
 
-  // Performance Monitoring: 10% in production, 100% in development
-  tracesSampleRate: TRACES_SAMPLE_RATE,
-
-  // Debug mode (only in development)
-  debug: !IS_PRODUCTION && process.env.SENTRY_DEBUG === 'true',
-
-  // Before sending events
-  beforeSend(event, hint) {
-    // Filter out development errors
-    if (!IS_PRODUCTION && event.level === 'warning') {
-      return null;
-    }
-    return event;
-  },
-
-  // Transaction naming and filtering
-  beforeSendTransaction(event) {
-    // Don't send transactions for health checks
-    if (event.transaction?.includes('/health')) {
-      return null;
-    }
-    return event;
-  },
-});
-
+      /** Никаких «умных» фильтров, только безопасные no-op */
+      beforeSend(event) {
+        // пример мягкой фильтрации; ничего не бросает
+        if (!IS_PROD && event.level === "warning") return null;
+        return event;
+      },
+      beforeSendTransaction(event) {
+        if (event.transaction?.includes("/health")) return null;
+        return event;
+      },
+    });
+  }
+  // если DSN пустой — просто не инициализируем Sentry (никаких throw)
+} catch {
+  // Никогда не даём падать edge-модулю
+  // (логировать здесь нельзя — middleware ещё не инициализирован)
+}
