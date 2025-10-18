@@ -1,17 +1,25 @@
-// apps/web/middleware.ts
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from 'next/server';
 
-export function middleware(req: NextRequest) {
-  // редиректим ТОЛЬКО корень на /ru
-  if (req.nextUrl.pathname === "/" || req.nextUrl.pathname === "") {
-    const url = req.nextUrl.clone();
-    url.pathname = "/ru";
-    return NextResponse.redirect(url);
-  }
-  return NextResponse.next();
-}
-
-// Запускаем middleware только на "/"
 export const config = {
-  matcher: ["/"],
+  matcher: ['/', '/((?!_next|api|static|.*\\..*).*)'],
 };
+
+// 💡 Используем try/catch, чтобы middleware не падал на Vercel Edge
+export default function middleware(req: NextRequest) {
+  try {
+    const { pathname } = req.nextUrl;
+    // редиректим только корень
+    if (pathname === '/' || pathname === '') {
+      const url = req.nextUrl.clone();
+      url.pathname = '/ru';
+      return NextResponse.redirect(url, 308);
+    }
+
+    // если это не корень — пропускаем дальше
+    return NextResponse.next();
+  } catch (err) {
+    console.error('Safe middleware error:', err);
+    // Не даём Edge Runtime падать
+    return NextResponse.next();
+  }
+}
