@@ -2,27 +2,27 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CategoryDto {
   @ApiProperty({ description: 'Category ID' })
-  id: number;
+  id!: number;
 
   @ApiProperty({ description: 'Category slug' })
-  slug: string;
+  slug!: string;
 
   @ApiProperty({ description: 'Category name in Russian' })
-  nameRu: string;
+  nameRu!: string;
 
   @ApiProperty({ description: 'Category name in Uzbek' })
-  nameUz: string;
+  nameUz!: string;
 }
 
 export class BrandResponseDto {
   @ApiProperty({ description: 'Brand ID' })
-  id: number;
+  id!: number;
 
   @ApiProperty({ description: 'Brand slug' })
-  slug: string;
+  slug!: string;
 
   @ApiProperty({ description: 'Brand name' })
-  name: string;
+  name!: string;
 
   @ApiProperty({ description: 'Brand description', required: false })
   description?: string;
@@ -31,10 +31,10 @@ export class BrandResponseDto {
   logoUrl?: string;
 
   @ApiProperty({ description: 'Brand category', type: CategoryDto })
-  category: CategoryDto;
+  category!: CategoryDto;
 }
 
 export class BrandListResponseDto {
   @ApiProperty({ description: 'List of brands', type: [BrandResponseDto] })
-  data: BrandResponseDto[];
+  data!: BrandResponseDto[];
 }

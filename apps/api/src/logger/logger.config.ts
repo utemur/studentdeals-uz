@@ -69,7 +69,7 @@ const serializers = {
     params: req.params,
     // Don't log full body, just indicate if it exists
     hasBody: !!req.body && Object.keys(req.body).length > 0,
-    ip: req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+    ip: req.ip || req.headers['x-forwarded-for'] || req.connection?.remoteAddress || 'unknown',
     userAgent: req.headers['user-agent'],
   }),
   res: (res: any) => ({

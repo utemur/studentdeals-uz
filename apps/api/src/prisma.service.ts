@@ -27,7 +27,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
               op: 'db.query',
               name: `${model}.${operation}`,
               attributes: {
-                'db.system': 'postgresql',
+                'db.system': 'sqlite',
                 'db.operation': operation,
                 'db.name': model,
               },

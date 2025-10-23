@@ -31,8 +31,8 @@ export class BrandsService {
         id: brand.id,
         slug: brand.slug,
         name: brand.name,
-        description: brand.description,
-        logoUrl: brand.logoUrl,
+        description: brand.description || undefined,
+        logoUrl: brand.logoUrl || undefined,
         category: {
           id: brand.category.id,
           slug: brand.category.slug,
@@ -66,8 +66,8 @@ export class BrandsService {
       id: brand.id,
       slug: brand.slug,
       name: brand.name,
-      description: brand.description,
-      logoUrl: brand.logoUrl,
+      description: brand.description || undefined,
+      logoUrl: brand.logoUrl || undefined,
       category: {
         id: brand.category.id,
         slug: brand.category.slug,
