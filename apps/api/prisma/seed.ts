@@ -1,6 +1,6 @@
 // apps/api/prisma/seed.ts
 import { PrismaClient } from '@prisma/client';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 
 const prisma = new PrismaClient();
@@ -42,6 +42,24 @@ function getCategoryOrder(categoryKey: string): number {
   return orders[categoryKey] || 99;
 }
 
+// Функция для проверки наличия логотипа
+function getLogoUrl(brandSlug: string): string | null {
+  // Путь к папке с логотипами в веб-приложении
+  const webPublicPath = path.join(process.cwd(), '..', 'web', 'public', 'brands');
+  
+  // Проверяем наличие файлов в порядке приоритета
+  const extensions = ['.png', '.svg', '.jpg', '.jpeg'];
+  
+  for (const ext of extensions) {
+    const logoPath = path.join(webPublicPath, `${brandSlug}${ext}`);
+    if (existsSync(logoPath)) {
+      return `/brands/${brandSlug}${ext}`;
+    }
+  }
+  
+  return null;
+}
+
 // Ожидаем формат JSON: { "food": ["KFC","Burger King"], "electronics": ["Artel", ...], ... }
 type BrandMap = Record<string, string[]>;
 
@@ -72,21 +90,25 @@ async function main() {
 
     for (const name of brands) {
       const brandSlug = slugify(name);
+      const logoUrl = getLogoUrl(brandSlug);
 
       await prisma.brand.upsert({
         where: { slug: brandSlug }, // предполагаем unique index по slug у Brand
         update: {
           name,
           categoryId: category.id,
+          logoUrl,
         },
         create: {
           name,
           slug: brandSlug,
           categoryId: category.id,
+          logoUrl,
         },
       });
 
-      console.log(`✔ ${name} → ${category.name}`);
+      const logoStatus = logoUrl ? `📷 ${logoUrl}` : '🖼️ no logo';
+      console.log(`✔ ${name} → ${category.name} (${logoStatus})`);
     }
   }
 

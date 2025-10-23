@@ -6,7 +6,7 @@ interface Brand {
   slug: string;
   name: string;
   description?: string;
-  logoUrl?: string;
+  logoUrl?: string | null;
   category: {
     id: number;
     slug: string;
