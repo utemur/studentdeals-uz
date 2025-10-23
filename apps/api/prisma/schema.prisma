@@ -71,3 +71,42 @@ model Feedback {
   @@index([userId, createdAt]) // Composite: user's feedback over time
   @@map("feedback")
 }
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  slug      String   @unique
+  nameRu    String
+  nameUz    String
+  icon      String?
+  descriptionRu String?
+  descriptionUz String?
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  brands    Brand[]
+
+  // Indexes for performance
+  @@index([slug]) // For finding category by slug
+  @@index([isActive]) // For filtering active categories
+  @@index([order]) // For ordering categories
+  @@map("categories")
+}
+
+model Brand {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique
+  name        String   @unique
+  description String?
+  logoUrl     String?
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Indexes for performance
+  @@index([slug]) // For finding brand by slug
+  @@index([name]) // For finding brand by name
+  @@index([categoryId]) // For filtering brands by category
+  @@map("brands")
+}
