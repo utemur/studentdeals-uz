@@ -13,6 +13,7 @@ import { EmailPreviewController } from './email/email-preview.controller';
 import { FeedbackModule } from './feedback/feedback.module';
 import { AdminModule } from './admin/admin.module';
 import { MonitoringModule } from './monitoring/monitoring.module';
+import { BrandsModule } from './brands/brands.module';
 import { PrismaService } from './prisma.service';
 import { pinoConfig } from './logger/logger.config';
 
@@ -30,6 +31,7 @@ import { pinoConfig } from './logger/logger.config';
     // FeedbackModule, // Temporarily disabled
     AdminModule,
     MonitoringModule,
+    BrandsModule,
   ],
   controllers: [
     HealthController,
@@ -41,7 +43,7 @@ import { pinoConfig } from './logger/logger.config';
     ),
   ],
   providers: [
-    // PrismaService, // Temporarily disabled for testing
+    PrismaService,
     {
       provide: APP_FILTER,
       useClass: SentryGlobalFilter,
