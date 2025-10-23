@@ -1,0 +1,92 @@
+[
+  {
+    "name": "McDonald's",
+    "categorySlug": "food",
+    "descriptionRu": "Всемирно известная сеть ресторанов быстрого питания",
+    "logoUrl": null
+  },
+  {
+    "name": "KFC",
+    "categorySlug": "food",
+    "descriptionRu": "Сеть ресторанов быстрого питания, специализирующаяся на курице",
+    "logoUrl": null
+  },
+  {
+    "name": "Pizza Hut",
+    "categorySlug": "food",
+    "descriptionRu": "Международная сеть пиццерий",
+    "logoUrl": null
+  },
+  {
+    "name": "Starbucks",
+    "categorySlug": "food",
+    "descriptionRu": "Всемирная сеть кофеен",
+    "logoUrl": null
+  },
+  {
+    "name": "Netflix",
+    "categorySlug": "entertainment",
+    "descriptionRu": "Стриминговая платформа для фильмов и сериалов",
+    "logoUrl": null
+  },
+  {
+    "name": "Spotify",
+    "categorySlug": "entertainment",
+    "descriptionRu": "Музыкальная стриминговая платформа",
+    "logoUrl": null
+  },
+  {
+    "name": "Adobe",
+    "categorySlug": "technology",
+    "descriptionRu": "Компания, создающая программное обеспечение для творчества",
+    "logoUrl": null
+  },
+  {
+    "name": "Microsoft",
+    "categorySlug": "technology",
+    "descriptionRu": "Технологическая корпорация, разработчик Windows и Office",
+    "logoUrl": null
+  },
+  {
+    "name": "Apple",
+    "categorySlug": "technology",
+    "descriptionRu": "Технологическая компания, создатель iPhone и Mac",
+    "logoUrl": null
+  },
+  {
+    "name": "Nike",
+    "categorySlug": "fashion",
+    "descriptionRu": "Американская компания, производящая спортивную одежду и обувь",
+    "logoUrl": null
+  },
+  {
+    "name": "Adidas",
+    "categorySlug": "fashion",
+    "descriptionRu": "Немецкая компания, производитель спортивной одежды и обуви",
+    "logoUrl": null
+  },
+  {
+    "name": "Coursera",
+    "categorySlug": "education",
+    "descriptionRu": "Онлайн-платформа для обучения с курсами от ведущих университетов",
+    "logoUrl": null
+  },
+  {
+    "name": "Udemy",
+    "categorySlug": "education",
+    "descriptionRu": "Онлайн-платформа для обучения с тысячами курсов",
+    "logoUrl": null
+  },
+  {
+    "name": "Booking.com",
+    "categorySlug": "travel",
+    "descriptionRu": "Онлайн-сервис для бронирования отелей и жилья",
+    "logoUrl": null
+  },
+  {
+    "name": "Uber",
+    "categorySlug": "travel",
+    "descriptionRu": "Сервис заказа такси и доставки",
+    "logoUrl": null
+  }
+]
