@@ -38,6 +38,7 @@ async function fetchBrands(category?: string): Promise<Brand[]> {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
+    console.log('[DEBUG] Fetched brands:', data.data?.slice(0, 3).map((b: any) => ({ name: b.name, logoUrl: b.logoUrl })));
     return data.data || [];
   } catch (error) {
     console.error('Error fetching brands:', error);
