@@ -25,183 +25,29 @@ interface BrandDetailPageProps {
   };
 }
 
-// Mock data - will be replaced with API calls
-const mockBrands: Brand[] = [
-  {
-    id: 1,
-    slug: 'mcdonalds',
-    name: 'McDonald\'s',
-    description: 'Всемирно известная сеть ресторанов быстрого питания с более чем 40,000 ресторанами в 100+ странах. McDonald\'s предлагает студентам эксклюзивные скидки на популярные блюда.',
-    logoUrl: null,
-    category: {
-      id: 1,
-      slug: 'food',
-      nameRu: 'Еда и напитки',
-      nameUz: 'Ovqat va ichimliklar'
+// Fetch brand from API
+async function fetchBrand(slug: string): Promise<Brand | null> {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  
+  try {
+    const response = await fetch(`${apiUrl}/brands/${slug}`);
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-  },
-  {
-    id: 2,
-    slug: 'kfc',
-    name: 'KFC',
-    description: 'Сеть ресторанов быстрого питания, специализирующаяся на курице. KFC предлагает студентам специальные цены на свои знаменитые блюда.',
-    logoUrl: null,
-    category: {
-      id: 1,
-      slug: 'food',
-      nameRu: 'Еда и напитки',
-      nameUz: 'Ovqat va ichimliklar'
-    }
-  },
-  {
-    id: 3,
-    slug: 'netflix',
-    name: 'Netflix',
-    description: 'Стриминговая платформа для фильмов и сериалов с миллионами подписчиков по всему миру. Netflix предлагает студентам специальные тарифы на подписку.',
-    logoUrl: null,
-    category: {
-      id: 2,
-      slug: 'entertainment',
-      nameRu: 'Развлечения',
-      nameUz: 'O\'yin-kulgi'
-    }
-  },
-  {
-    id: 4,
-    slug: 'spotify',
-    name: 'Spotify',
-    description: 'Музыкальная стриминговая платформа с более чем 100 миллионами треков. Spotify предоставляет студентам скидки на премиум подписку.',
-    logoUrl: null,
-    category: {
-      id: 2,
-      slug: 'entertainment',
-      nameRu: 'Развлечения',
-      nameUz: 'O\'yin-kulgi'
-    }
-  },
-  {
-    id: 5,
-    slug: 'adobe',
-    name: 'Adobe',
-    description: 'Компания, создающая программное обеспечение для творчества. Adobe Creative Cloud предлагает студентам значительные скидки на свои продукты.',
-    logoUrl: null,
-    category: {
-      id: 4,
-      slug: 'technology',
-      nameRu: 'Технологии',
-      nameUz: 'Texnologiya'
-    }
-  },
-  {
-    id: 6,
-    slug: 'microsoft',
-    name: 'Microsoft',
-    description: 'Технологическая корпорация, разработчик Windows и Office. Microsoft предоставляет студентам бесплатный доступ к Office 365 и другим продуктам.',
-    logoUrl: null,
-    category: {
-      id: 4,
-      slug: 'technology',
-      nameRu: 'Технологии',
-      nameUz: 'Texnologiya'
-    }
-  },
-  {
-    id: 7,
-    slug: 'apple',
-    name: 'Apple',
-    description: 'Технологическая компания, создатель iPhone и Mac. Apple предлагает студентам образовательные скидки на свои устройства.',
-    logoUrl: null,
-    category: {
-      id: 4,
-      slug: 'technology',
-      nameRu: 'Технологии',
-      nameUz: 'Texnologiya'
-    }
-  },
-  {
-    id: 8,
-    slug: 'nike',
-    name: 'Nike',
-    description: 'Американская компания, производящая спортивную одежду и обувь. Nike предоставляет студентам скидки на спортивную экипировку.',
-    logoUrl: null,
-    category: {
-      id: 5,
-      slug: 'fashion',
-      nameRu: 'Мода',
-      nameUz: 'Moda'
-    }
-  },
-  {
-    id: 9,
-    slug: 'adidas',
-    name: 'Adidas',
-    description: 'Немецкая компания, производитель спортивной одежды и обуви. Adidas предлагает студентам специальные цены на спортивные товары.',
-    logoUrl: null,
-    category: {
-      id: 5,
-      slug: 'fashion',
-      nameRu: 'Мода',
-      nameUz: 'Moda'
-    }
-  },
-  {
-    id: 10,
-    slug: 'coursera',
-    name: 'Coursera',
-    description: 'Онлайн-платформа для обучения с курсами от ведущих университетов. Coursera предоставляет студентам бесплатный доступ к тысячам курсов.',
-    logoUrl: null,
-    category: {
-      id: 3,
-      slug: 'education',
-      nameRu: 'Образование',
-      nameUz: 'Ta\'lim'
-    }
-  },
-  {
-    id: 11,
-    slug: 'udemy',
-    name: 'Udemy',
-    description: 'Онлайн-платформа для обучения с тысячами курсов. Udemy предлагает студентам скидки на курсы по программированию, дизайну и другим навыкам.',
-    logoUrl: null,
-    category: {
-      id: 3,
-      slug: 'education',
-      nameRu: 'Образование',
-      nameUz: 'Ta\'lim'
-    }
-  },
-  {
-    id: 12,
-    slug: 'booking-com',
-    name: 'Booking.com',
-    description: 'Онлайн-сервис для бронирования отелей и жилья. Booking.com предоставляет студентам специальные тарифы на путешествия.',
-    logoUrl: null,
-    category: {
-      id: 6,
-      slug: 'travel',
-      nameRu: 'Путешествия',
-      nameUz: 'Sayohat'
-    }
-  },
-  {
-    id: 13,
-    slug: 'uber',
-    name: 'Uber',
-    description: 'Сервис заказа такси и доставки. Uber предлагает студентам скидки на поездки и доставку еды.',
-    logoUrl: null,
-    category: {
-      id: 6,
-      slug: 'travel',
-      nameRu: 'Путешествия',
-      nameUz: 'Sayohat'
-    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching brand:', error);
+    return null;
   }
-];
+}
 
 export async function generateMetadata({ params }: BrandDetailPageProps): Promise<Metadata> {
   const { locale, slug } = params;
   
-  const brand = mockBrands.find(b => b.slug === slug);
+  const brand = await fetchBrand(slug);
   
   if (!brand) {
     return {
@@ -217,10 +63,10 @@ export async function generateMetadata({ params }: BrandDetailPageProps): Promis
   });
 }
 
-export default function BrandDetailPage({ params }: BrandDetailPageProps) {
+export default async function BrandDetailPage({ params }: BrandDetailPageProps) {
   const { locale, slug } = params;
   
-  const brand = mockBrands.find(b => b.slug === slug);
+  const brand = await fetchBrand(slug);
   
   if (!brand) {
     notFound();
