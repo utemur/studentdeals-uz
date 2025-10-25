@@ -27,13 +27,20 @@ interface BrandsPageProps {
 
 // Fetch brands from API
 async function fetchBrands(category?: string): Promise<Brand[]> {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  // Use /api/brands for Vercel deployment, or localhost for development
+  const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL;
+  const baseUrl = isProduction 
+    ? (process.env.NEXT_PUBLIC_API_URL || '/api')
+    : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001');
+  
   const url = category 
-    ? `${apiUrl}/brands?category=${category}`
-    : `${apiUrl}/brands`;
+    ? `${baseUrl}/brands?category=${category}`
+    : `${baseUrl}/brands`;
   
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      cache: 'no-store', // Disable caching to get fresh data
+    });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
