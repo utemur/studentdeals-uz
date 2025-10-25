@@ -1,6 +1,6 @@
 // apps/api/prisma/seed.ts
 import { PrismaClient } from '@prisma/client';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 
 const prisma = new PrismaClient();
@@ -47,14 +47,19 @@ function getLogoUrl(brandSlug: string): string | null {
   // Путь к папке с логотипами в веб-приложении
   const webPublicPath = path.join(process.cwd(), '..', 'web', 'public', 'brands');
   
-  // Проверяем наличие файлов в порядке приоритета
-  const extensions = ['.png', '.svg', '.jpg', '.jpeg'];
-  
-  for (const ext of extensions) {
-    const logoPath = path.join(webPublicPath, `${brandSlug}${ext}`);
-    if (existsSync(logoPath)) {
-      return `/brands/${brandSlug}${ext}`;
+  try {
+    // Читаем все файлы в папке
+    const files = readdirSync(webPublicPath, { withFileTypes: true });
+    
+    // Проверяем наличие файлов, начинающихся с brandSlug
+    for (const file of files) {
+      if (file.isFile() && file.name.startsWith(brandSlug)) {
+        // Возвращаем полный путь к файлу
+        return `/brands/${file.name}`;
+      }
     }
+  } catch (error) {
+    console.error('Error reading brands directory:', error);
   }
   
   return null;
