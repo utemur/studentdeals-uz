@@ -1,8 +1,9 @@
 {
-  "food": ["McDonald's", "KFC", "Pizza Hut", "Starbucks", "Wendy's"],
-  "entertainment": ["Netflix", "Spotify"],
-  "technology": ["Adobe", "Microsoft", "Apple"],
-  "fashion": ["Nike", "Adidas"],
-  "education": ["Coursera", "Udemy"],
-  "travel": ["Booking.com", "Uber"]
+  "food": ["EVOS", "KFC", "Safia", "Yaponamama", "Wendy's"],
+  "entertainment": ["Allplay", "Beeline"],
+  "technology": ["MacBro", "Artel", "Xiaomi"],
+  "fashion": ["Terra Pro", "JUST"],
+  "education": ["PROWEB", "5plus"],
+  "travel": ["Uzbekistan Airways", "Yandex Taxi"],
+  "health": ["Oxymed", "Bloom"]
 }
