@@ -1,4 +1,8 @@
+'use client';
+
 import Link from 'next/link';
+import Image from 'next/image';
+import { useState } from 'react';
 
 interface LogoProps {
   locale?: string;
@@ -20,24 +24,36 @@ const textSizeClasses = {
 };
 
 export function Logo({ locale = 'ru', className = '', size = 'md', showText = true }: LogoProps) {
+  const [imageError, setImageError] = useState(false);
+
   return (
     <Link href={`/${locale}`} className={`group flex items-center space-x-3 ${className}`}>
-      {/* Logo Icon - Graduation Cap with Silk Road colors */}
-      <div className={`${sizeClasses[size]} bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-soft`}>
-        <svg 
-          viewBox="0 0 24 24" 
-          fill="none" 
-          stroke="currentColor" 
-          className="w-3/5 h-3/5 text-white"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          {/* Graduation cap */}
-          <path d="M12 2L2 7l10 5 10-5-10-5z" />
-          <path d="M2 17l10 5 10-5" />
-          <path d="M2 12l10 5 10-5" />
-        </svg>
+      {/* Logo Icon - Try to use custom logo image, fallback to SVG */}
+      <div className={`${sizeClasses[size]} bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-soft overflow-hidden`}>
+        {!imageError ? (
+          <Image
+            src="/logo.png"
+            alt="StudentDeals.uz Logo"
+            width={size === 'sm' ? 32 : size === 'md' ? 40 : 48}
+            height={size === 'sm' ? 32 : size === 'md' ? 40 : 48}
+            className="object-contain w-full h-full"
+            onError={() => setImageError(true)}
+          />
+        ) : (
+          <svg 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            className="w-3/5 h-3/5 text-white"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+            <path d="M2 17l10 5 10-5" />
+            <path d="M2 12l10 5 10-5" />
+          </svg>
+        )}
       </div>
       
       {showText && (
