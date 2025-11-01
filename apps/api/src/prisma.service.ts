@@ -29,7 +29,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
             stdio: 'inherit',
           });
           
-          migrate.on('close', (code) => {
+          migrate.on('close', (code: number) => {
             if (code === 0) {
               console.log('✅ Database migrations completed');
               resolve();
@@ -39,7 +39,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
             }
           });
           
-          migrate.on('error', (error) => {
+          migrate.on('error', (error: Error) => {
             console.error('⚠️ Migration error:', error);
             resolve(); // Continue anyway
           });
@@ -60,7 +60,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
             stdio: 'inherit',
           });
           
-          seed.on('close', (code) => {
+          seed.on('close', (code: number) => {
             if (code === 0) {
               console.log('✅ Database seeding completed');
             } else {
@@ -69,7 +69,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
             resolve(); // Continue anyway
           });
           
-          seed.on('error', (error) => {
+          seed.on('error', (error: Error) => {
             console.error('⚠️ Seeding error:', error);
             resolve(); // Continue anyway
           });
