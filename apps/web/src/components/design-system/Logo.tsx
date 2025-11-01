@@ -13,8 +13,8 @@ interface LogoProps {
 
 const sizeClasses = {
   sm: 'w-8 h-8',
-  md: 'w-10 h-10',
-  lg: 'w-12 h-12',
+  md: 'w-auto h-12',
+  lg: 'w-auto h-16',
 };
 
 const textSizeClasses = {
@@ -27,16 +27,17 @@ export function Logo({ locale = 'ru', className = '', size = 'md', showText = tr
   const [imageError, setImageError] = useState(false);
 
   return (
-    <Link href={`/${locale}`} className={`group flex items-center space-x-3 ${className}`}>
+    <Link href={`/${locale}`} className={`group flex items-center ${className}`}>
       {/* Logo Icon - Try to use custom logo image, fallback to SVG */}
-      <div className={`${sizeClasses[size]} bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-soft overflow-hidden`}>
+      <div className={`${sizeClasses[size]} bg-white flex items-center justify-center group-hover:scale-110 transition-transform duration-300 overflow-hidden`}>
         {!imageError ? (
           <Image
             src="/logo.png"
             alt="StudentDeals.uz Logo"
-            width={size === 'sm' ? 32 : size === 'md' ? 40 : 48}
-            height={size === 'sm' ? 32 : size === 'md' ? 40 : 48}
-            className="object-contain w-full h-full"
+            width={0}
+            height={0}
+            sizes="100vw"
+            className="h-full w-auto object-contain"
             onError={() => setImageError(true)}
           />
         ) : (
@@ -44,7 +45,7 @@ export function Logo({ locale = 'ru', className = '', size = 'md', showText = tr
             viewBox="0 0 24 24" 
             fill="none" 
             stroke="currentColor" 
-            className="w-3/5 h-3/5 text-white"
+            className="w-3/5 h-3/5 text-brand-600"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -57,7 +58,7 @@ export function Logo({ locale = 'ru', className = '', size = 'md', showText = tr
       </div>
       
       {showText && (
-        <div>
+        <div className="ml-3">
           <h1 className={`${textSizeClasses[size]} font-display font-bold bg-gradient-to-r from-brand-600 to-brand-800 bg-clip-text text-transparent group-hover:from-brand-700 group-hover:to-brand-900 transition-all duration-300`}>
             StudentDeals.uz
           </h1>

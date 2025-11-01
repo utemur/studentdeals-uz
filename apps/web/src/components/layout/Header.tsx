@@ -37,7 +37,7 @@ export function Header({ locale, initialUser }: HeaderProps) {
         {/* Top Bar */}
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Logo locale={locale} size="md" showText={true} />
+          <Logo locale={locale} size="md" showText={false} />
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-8">
