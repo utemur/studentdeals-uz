@@ -3,7 +3,7 @@ services:
     name: studentdeals-api
     env: node
     plan: free
-    buildCommand: pnpm build
+    buildCommand: pnpm build && cd apps/api && pnpm prisma migrate deploy && pnpm prisma:seed
     startCommand: pnpm start
     envVars:
       - key: NODE_ENV
