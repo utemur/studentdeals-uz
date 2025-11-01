@@ -13,8 +13,8 @@ interface LogoProps {
 
 const sizeClasses = {
   sm: 'w-8 h-8',
-  md: 'w-auto h-12',
-  lg: 'w-auto h-16',
+  md: 'w-auto h-16',
+  lg: 'w-auto h-20',
 };
 
 const textSizeClasses = {
