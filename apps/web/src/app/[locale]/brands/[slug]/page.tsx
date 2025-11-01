@@ -35,7 +35,7 @@ async function fetchBrand(slug: string): Promise<Brand | null> {
   
   try {
     const response = await fetch(`${baseUrl}/brands/${slug}`, {
-      cache: 'no-store', // Disable caching to get fresh data
+      next: { revalidate: 60 }, // Revalidate every 60 seconds
     });
     if (!response.ok) {
       if (response.status === 404) {

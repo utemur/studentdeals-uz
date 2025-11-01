@@ -39,7 +39,7 @@ async function fetchBrands(category?: string): Promise<Brand[]> {
   
   try {
     const response = await fetch(url, {
-      cache: 'no-store', // Disable caching to get fresh data
+      next: { revalidate: 60 }, // Revalidate every 60 seconds
     });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
