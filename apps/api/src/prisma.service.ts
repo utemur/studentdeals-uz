@@ -16,6 +16,40 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   }
 
   async onModuleInit() {
+    // Run migrations in production automatically
+    if (this.configService.get('NODE_ENV') === 'production') {
+      console.log('🔄 Running database migrations...');
+      try {
+        const { exec } = require('child_process');
+        const { promisify } = require('util');
+        const execAsync = promisify(exec);
+        
+        await execAsync('pnpm prisma migrate deploy', {
+          cwd: process.cwd(),
+          env: process.env,
+        });
+        console.log('✅ Database migrations completed');
+      } catch (error) {
+        console.error('⚠️ Migration error (might be already applied):', error);
+      }
+      
+      // Run seed after migrations to populate brands and categories
+      console.log('🌱 Running database seeding...');
+      try {
+        const { exec } = require('child_process');
+        const { promisify } = require('util');
+        const execAsync = promisify(exec);
+        
+        await execAsync('pnpm prisma:seed', {
+          cwd: process.cwd(),
+          env: process.env,
+        });
+        console.log('✅ Database seeding completed');
+      } catch (error) {
+        console.error('⚠️ Seeding error:', error);
+      }
+    }
+    
     await this.$connect();
 
     // Create Sentry extension for query tracing
