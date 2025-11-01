@@ -113,7 +113,7 @@ async function main() {
       });
 
       const logoStatus = logoUrl ? `📷 ${logoUrl}` : '🖼️ no logo';
-      console.log(`✔ ${name} → ${category.name} (${logoStatus})`);
+      console.log(`✔ ${name} → ${category.nameRu} (${logoStatus})`);
     }
   }
 
