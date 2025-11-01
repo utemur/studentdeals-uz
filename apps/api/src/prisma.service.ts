@@ -16,35 +16,64 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   }
 
   async onModuleInit() {
-    // Run migrations in production automatically
-    if (this.configService.get('NODE_ENV') === 'production') {
+    // Run migrations in production automatically if enabled
+    if (this.configService.get('NODE_ENV') === 'production' && this.configService.get('RUN_MIGRATIONS_ON_START') !== 'false') {
       console.log('🔄 Running database migrations...');
       try {
-        const { exec } = require('child_process');
-        const { promisify } = require('util');
-        const execAsync = promisify(exec);
+        const { spawn } = require('child_process');
         
-        await execAsync('pnpm prisma migrate deploy', {
-          cwd: process.cwd(),
-          env: process.env,
+        await new Promise<void>((resolve, reject) => {
+          const migrate = spawn('pnpm', ['prisma', 'migrate', 'deploy'], {
+            cwd: process.cwd(),
+            env: process.env,
+            stdio: 'inherit',
+          });
+          
+          migrate.on('close', (code) => {
+            if (code === 0) {
+              console.log('✅ Database migrations completed');
+              resolve();
+            } else {
+              console.error('⚠️ Migration error (might be already applied)');
+              resolve(); // Continue anyway
+            }
+          });
+          
+          migrate.on('error', (error) => {
+            console.error('⚠️ Migration error:', error);
+            resolve(); // Continue anyway
+          });
         });
-        console.log('✅ Database migrations completed');
       } catch (error) {
-        console.error('⚠️ Migration error (might be already applied):', error);
+        console.error('⚠️ Migration error:', error);
       }
       
       // Run seed after migrations to populate brands and categories
       console.log('🌱 Running database seeding...');
       try {
-        const { exec } = require('child_process');
-        const { promisify } = require('util');
-        const execAsync = promisify(exec);
+        const { spawn } = require('child_process');
         
-        await execAsync('pnpm prisma:seed', {
-          cwd: process.cwd(),
-          env: process.env,
+        await new Promise<void>((resolve, reject) => {
+          const seed = spawn('pnpm', ['prisma:seed'], {
+            cwd: process.cwd(),
+            env: process.env,
+            stdio: 'inherit',
+          });
+          
+          seed.on('close', (code) => {
+            if (code === 0) {
+              console.log('✅ Database seeding completed');
+            } else {
+              console.error('⚠️ Seeding error');
+            }
+            resolve(); // Continue anyway
+          });
+          
+          seed.on('error', (error) => {
+            console.error('⚠️ Seeding error:', error);
+            resolve(); // Continue anyway
+          });
         });
-        console.log('✅ Database seeding completed');
       } catch (error) {
         console.error('⚠️ Seeding error:', error);
       }
