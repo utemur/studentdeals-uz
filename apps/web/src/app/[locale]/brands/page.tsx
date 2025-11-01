@@ -40,6 +40,7 @@ async function fetchBrands(category?: string): Promise<Brand[]> {
   try {
     const response = await fetch(url, {
       next: { revalidate: 60 }, // Revalidate every 60 seconds
+      signal: AbortSignal.timeout(10000), // 10 second timeout
     });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -48,7 +49,7 @@ async function fetchBrands(category?: string): Promise<Brand[]> {
     console.log('[DEBUG] Fetched brands:', data.data?.slice(0, 3).map((b: any) => ({ name: b.name, logoUrl: b.logoUrl })));
     return data.data || [];
   } catch (error) {
-    console.error('Error fetching brands:', error);
+    console.error('Error fetching brands:', error instanceof Error ? error.message : 'Unknown error');
     return [];
   }
 }

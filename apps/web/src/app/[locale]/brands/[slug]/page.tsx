@@ -36,6 +36,7 @@ async function fetchBrand(slug: string): Promise<Brand | null> {
   try {
     const response = await fetch(`${baseUrl}/brands/${slug}`, {
       next: { revalidate: 60 }, // Revalidate every 60 seconds
+      signal: AbortSignal.timeout(10000), // 10 second timeout
     });
     if (!response.ok) {
       if (response.status === 404) {
@@ -45,7 +46,7 @@ async function fetchBrand(slug: string): Promise<Brand | null> {
     }
     return await response.json();
   } catch (error) {
-    console.error('Error fetching brand:', error);
+    console.error('Error fetching brand:', error instanceof Error ? error.message : 'Unknown error');
     return null;
   }
 }
