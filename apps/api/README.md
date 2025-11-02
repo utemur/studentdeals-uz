@@ -79,8 +79,10 @@ pnpm --filter api run prisma:migrate
 
 **Build Command:**
 ```bash
-npm install -g pnpm && pnpm install --frozen-lockfile && pnpm --filter api build
+npm install -g pnpm && pnpm install --frozen-lockfile --prod=false && pnpm --filter api build
 ```
+
+**Примечание:** Флаг `--prod=false` необходим для установки `devDependencies` (TypeScript типы), которые нужны для сборки, но не требуются в runtime.
 
 **Start Command:**
 ```bash

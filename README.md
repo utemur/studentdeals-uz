@@ -307,7 +307,9 @@ PRISMA_LOG_LEVEL=warn  # Опционально: query, info, warn, error
 
 **Настройки Render для API:**
 - **Root Directory:** `.` (корень проекта, оставьте пустым)
-- **Build Command:** `npm install -g pnpm && pnpm install --frozen-lockfile && pnpm --filter api build`
+- **Build Command:** `npm install -g pnpm && pnpm install --frozen-lockfile --prod=false && pnpm --filter api build`
+
+**Примечание:** Флаг `--prod=false` устанавливает devDependencies (TypeScript типы) необходимые для сборки.
 - **Start Command:** `pnpm --filter api start:prod`
 - **Node Version:** 20
 - **Package Manager:** pnpm
