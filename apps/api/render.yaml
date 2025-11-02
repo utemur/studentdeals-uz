@@ -3,8 +3,8 @@ services:
     name: studentdeals-api
     env: node
     plan: free
-    buildCommand: npm install -g pnpm && pnpm install --frozen-lockfile && pnpm build
-    startCommand: pnpm start:prod
+    buildCommand: npm install -g pnpm && pnpm install --frozen-lockfile && pnpm --filter api build
+    startCommand: pnpm --filter api start:prod
     envVars:
       - key: NODE_ENV
         value: production

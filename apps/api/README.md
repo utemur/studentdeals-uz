@@ -68,10 +68,10 @@ pnpm --filter api run prisma:migrate
 
 ### Настройки Render:
 
-**Важно:** Убедитесь, что **Root Directory** установлен на `apps/api`, а не на корень проекта.
+**Важно:** Для монорепозитория нужно использовать **Root Directory: корень проекта** (не `apps/api`), чтобы pnpm мог установить зависимости для всего workspace.
 
 #### Обязательные настройки:
-- **Root Directory:** `apps/api`
+- **Root Directory:** `.` (корень проекта, оставьте пустым или установите `/`)
 - **Node Version:** 20
 - **Package Manager:** pnpm
 
@@ -79,12 +79,12 @@ pnpm --filter api run prisma:migrate
 
 **Build Command:**
 ```bash
-npm install -g pnpm && pnpm install --frozen-lockfile && pnpm build
+npm install -g pnpm && pnpm install --frozen-lockfile && pnpm --filter api build
 ```
 
 **Start Command:**
 ```bash
-pnpm start:prod
+pnpm --filter api start:prod
 ```
 
 ### Переменные окружения:
@@ -107,7 +107,7 @@ pnpm start:prod
 
 1. **Prisma Client генерируется автоматически** при выполнении `pnpm install` благодаря скрипту `postinstall: "prisma generate"` в `package.json`
 2. **Prisma CLI доступен** в production благодаря тому, что `prisma` находится в `dependencies` (не в `devDependencies`)
-3. **Все команды выполняются относительно `apps/api`**, так как Root Directory установлен на `apps/api`
+3. **Команды используют `--filter api`** для работы с API сервисом из корня монорепозитория
 
 ### Локальная проверка:
 ```bash

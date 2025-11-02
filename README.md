@@ -306,16 +306,16 @@ PRISMA_LOG_LEVEL=warn  # Опционально: query, info, warn, error
 ```
 
 **Настройки Render для API:**
-- **Root Directory:** `apps/api` (обязательно!)
-- **Build Command:** `npm install -g pnpm && pnpm install --frozen-lockfile && pnpm build`
-- **Start Command:** `pnpm start:prod`
+- **Root Directory:** `.` (корень проекта, оставьте пустым)
+- **Build Command:** `npm install -g pnpm && pnpm install --frozen-lockfile && pnpm --filter api build`
+- **Start Command:** `pnpm --filter api start:prod`
 - **Node Version:** 20
 - **Package Manager:** pnpm
 
 **Важно:**
 - Prisma CLI автоматически доступен, так как `prisma` находится в `dependencies`
 - Prisma Client генерируется автоматически при `pnpm install` через `postinstall` скрипт
-- Все команды Prisma выполняются относительно `apps/api` благодаря настройке Root Directory
+- Команды используют `--filter api` для работы с API из корня монорепозитория
 
 ---
 
