@@ -3,8 +3,8 @@ services:
     name: studentdeals-api
     env: node
     plan: free
-    buildCommand: pnpm build && cd apps/api && pnpm prisma migrate deploy && pnpm prisma:seed
-    startCommand: pnpm start
+    buildCommand: npm install -g pnpm && pnpm install --frozen-lockfile && pnpm build
+    startCommand: pnpm start:prod
     envVars:
       - key: NODE_ENV
         value: production

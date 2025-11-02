@@ -302,7 +302,20 @@ RESEND_API_KEY=re_...
 EMAIL_FROM=StudentDeals <noreply@studentdeals.uz>
 APP_URL=https://studentdeals.uz
 SENTRY_DSN=https://...@sentry.io/...
+PRISMA_LOG_LEVEL=warn  # Опционально: query, info, warn, error
 ```
+
+**Настройки Render для API:**
+- **Root Directory:** `apps/api` (обязательно!)
+- **Build Command:** `npm install -g pnpm && pnpm install --frozen-lockfile && pnpm build`
+- **Start Command:** `pnpm start:prod`
+- **Node Version:** 20
+- **Package Manager:** pnpm
+
+**Важно:**
+- Prisma CLI автоматически доступен, так как `prisma` находится в `dependencies`
+- Prisma Client генерируется автоматически при `pnpm install` через `postinstall` скрипт
+- Все команды Prisma выполняются относительно `apps/api` благодаря настройке Root Directory
 
 ---
 

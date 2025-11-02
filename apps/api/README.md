@@ -67,25 +67,65 @@ pnpm --filter api run prisma:migrate
 ## Деплой на Render
 
 ### Настройки Render:
-- **Build Command:** `pnpm install --no-frozen-lockfile --prod=false && pnpm --filter api build`
-- **Start Command:** `node dist/main.js`
+
+**Важно:** Убедитесь, что **Root Directory** установлен на `apps/api`, а не на корень проекта.
+
+#### Обязательные настройки:
+- **Root Directory:** `apps/api`
 - **Node Version:** 20
 - **Package Manager:** pnpm
 
+#### Команды:
+
+**Build Command:**
+```bash
+npm install -g pnpm && pnpm install --frozen-lockfile && pnpm build
+```
+
+**Start Command:**
+```bash
+pnpm start:prod
+```
+
 ### Переменные окружения:
-- `PORT=10000` - порт сервера
-- `NODE_ENV=production` - для продакшена
+
+Обязательные переменные:
+- `DATABASE_URL` - PostgreSQL connection string (Render автоматически предоставляет для PostgreSQL services)
+- `PORT` - порт сервера (обычно Render устанавливает автоматически, но можно явно указать)
+- `NODE_ENV=production` - окружение
+
+Опциональные переменные:
+- `PRISMA_LOG_LEVEL` - уровень логирования Prisma (например, `query`, `info`, `warn`, `error`)
+- `JWT_SECRET` - секретный ключ для JWT токенов
+- `RESEND_API_KEY` - API ключ для отправки email через Resend
+- `EMAIL_FROM` - адрес отправителя email
+- `APP_URL` - URL приложения для генерации ссылок
+- `ALLOWED_ORIGINS` - разрешенные origins для CORS (через запятую)
+- `SENTRY_DSN` - DSN для Sentry мониторинга
+
+### Примечания по деплою:
+
+1. **Prisma Client генерируется автоматически** при выполнении `pnpm install` благодаря скрипту `postinstall: "prisma generate"` в `package.json`
+2. **Prisma CLI доступен** в production благодаря тому, что `prisma` находится в `dependencies` (не в `devDependencies`)
+3. **Все команды выполняются относительно `apps/api`**, так как Root Directory установлен на `apps/api`
 
 ### Локальная проверка:
 ```bash
-# Установка зависимостей
+# Установка зависимостей из корня монорепозитория
+cd /path/to/StudentDeals.uz
 pnpm install
 
-# Сборка API
-pnpm --filter api build
+# Переход в директорию API
+cd apps/api
 
-# Запуск
-pnpm --filter api start
+# Генерация Prisma Client (выполняется автоматически при postinstall)
+pnpm prisma generate
+
+# Сборка
+pnpm build
+
+# Запуск продакшен сборки
+pnpm start:prod
 ```
 
 ## Структура
