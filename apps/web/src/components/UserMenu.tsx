@@ -3,6 +3,8 @@
 import { Button } from '@studentdeals/ui';
 import { UserDTO } from '@studentdeals/types';
 
+const TELEGRAM_BOT_URL = 'https://t.me/studentdeals_uz_bot';
+
 interface UserMenuProps {
   user: UserDTO | null;
   locale: string;
@@ -17,15 +19,20 @@ export default function UserMenu({ user, locale }: UserMenuProps) {
           size="sm"
           onClick={() => window.location.href = `/${locale}/signin`}
         >
-          Войти
+          {locale === 'ru' ? 'Войти' : 'Kirish'}
         </Button>
-        <Button
-          variant="primary"
-          size="sm"
-          onClick={() => window.location.href = `/${locale}/signup`}
+        <a
+          href={TELEGRAM_BOT_URL}
+          target="_blank"
+          rel="noopener noreferrer"
         >
-          Регистрация
-        </Button>
+          <Button
+            variant="primary"
+            size="sm"
+          >
+            {locale === 'ru' ? 'Регистрация' : 'Ro\'yxatdan o\'tish'}
+          </Button>
+        </a>
       </div>
     );
   }

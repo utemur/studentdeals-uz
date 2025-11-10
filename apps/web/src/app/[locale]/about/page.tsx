@@ -1,6 +1,8 @@
 import { Container } from '@studentdeals/ui';
 import { generateSEOMetadata } from '@/lib/seo';
 
+const TELEGRAM_BOT_URL = 'https://t.me/studentdeals_uz_bot';
+
 export async function generateMetadata({ params }: { params: { locale: string } }) {
   const { locale } = params;
   
@@ -124,10 +126,12 @@ export default function AboutPage({ params }: { params: { locale: string } }) {
             }
           </p>
           <a 
-            href={`/${locale}/signup`}
+            href={TELEGRAM_BOT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center justify-center rounded-xl font-medium transition-colors bg-brand-500 text-white hover:bg-brand-600 h-12 px-6"
           >
-            {locale === 'ru' ? 'Начать экономить' : 'Tejashni boshlash'}
+            {locale === 'ru' ? 'Зарегистрироваться через Telegram' : 'Telegram orqali ro\'yxatdan o\'tish'}
           </a>
         </div>
       </div>

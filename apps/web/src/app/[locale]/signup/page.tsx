@@ -1,157 +1,70 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useEffect } from 'react';
+import { useParams } from 'next/navigation';
 import { Button } from '@studentdeals/ui';
-import { api } from '@/lib/api';
-import { analytics } from '@/lib/analytics-server';
-import Toast from '@/components/Toast';
-import type { RegisterRequest, RegisterResponse, AuthResponse } from '@studentdeals/types';
+
+const TELEGRAM_BOT_URL = 'https://t.me/studentdeals_uz_bot';
 
 export default function SignupPage() {
-  const router = useRouter();
   const params = useParams();
   const locale = params.locale as string;
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-  const [loading, setLoading] = useState(false);
 
-  // Track signup_start when page loads
+  // Track signup_start when page loads (user clicked registration)
   useEffect(() => {
-    analytics.signupStart();
+    // Optional: track that user visited signup page
+    // analytics.signupStart();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setToast(null);
-    setLoading(true);
-
-    try {
-      const formData = new FormData(e.currentTarget);
-      const registerData: RegisterRequest = {
-        email: formData.get('email') as string,
-        password: formData.get('password') as string,
-      };
-
-      // Call our Next.js API route (proxy to Render API + auto-login + sets httpOnly cookie)
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(registerData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        // Track API error
-        analytics.apiError('/api/auth/register', response.status, data.error);
-        throw new Error(data.error || 'Registration failed');
-      }
-
-      // Track successful signup
-      analytics.signupSuccess(data.user?.id);
-
-      setToast({ message: 'Регистрация успешна! Добро пожаловать!', type: 'success' });
-      
-      // Редирект через 500ms
-      setTimeout(() => {
-        router.push(`/${locale}`);
-        router.refresh();
-      }, 500);
-    } catch (err: any) {
-      let errorMessage = 'Ошибка регистрации';
-      
-      if (err.message) {
-        // Handle specific error messages
-        if (err.message.includes('already exists') || err.message.includes('already registered')) {
-          errorMessage = 'Пользователь с таким email уже зарегистрирован';
-        } else if (err.message.includes('Invalid email')) {
-          errorMessage = 'Неверный формат email';
-        } else if (err.message.includes('Password too short')) {
-          errorMessage = 'Пароль должен содержать минимум 8 символов';
-        } else if (err.message.includes('Network')) {
-          errorMessage = 'Ошибка сети. Проверьте подключение к интернету';
-        } else {
-          errorMessage = err.message;
-        }
-      }
-      
-      setToast({ message: errorMessage, type: 'error' });
-      setLoading(false);
-    }
-  };
-
   return (
-    <>
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
-      
-      <div className="min-h-screen bg-gradient-to-br from-brand-50 to-brand-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
-          <div className="text-center">
-            <h2 className="mt-6 text-3xl font-display font-bold text-gray-900">
-              {locale === 'ru' ? 'Создать аккаунт' : 'Hisob yaratish'}
-            </h2>
-            <p className="mt-2 text-sm text-gray-600">
-              {locale === 'ru' 
-                ? 'Зарегистрируйтесь, чтобы получить доступ к эксклюзивным предложениям для студентов'
-                : 'Talabalar uchun eksklyuziv takliflarga kirish uchun ro\'yxatdan o\'ting'
-              }
-            </p>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-brand-50 to-brand-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div className="text-center">
+          <h2 className="mt-6 text-3xl font-display font-bold text-gray-900">
+            {locale === 'ru' ? 'Регистрация студентов' : 'Talabalar ro\'yxatdan o\'tishi'}
+          </h2>
+          <p className="mt-2 text-sm text-gray-600">
+            {locale === 'ru' 
+              ? 'Регистрация студентов проходит через наш Telegram-бот'
+              : 'Talabalar ro\'yxatdan o\'tishi bizning Telegram-botimiz orqali amalga oshiriladi'
+            }
+          </p>
+        </div>
 
-          <div className="bg-white rounded-2xl shadow-soft border-0 p-8">
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium text-gray-700">
-                  {locale === 'ru' ? 'Email' : 'Email'}
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  className="h-12 w-full px-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors"
-                  placeholder={locale === 'ru' ? 'your@email.com' : 'your@email.com'}
-                />
+        <div className="bg-white rounded-2xl shadow-soft border-0 p-8">
+          <div className="space-y-6">
+            <div className="text-center space-y-4">
+              <div className="flex justify-center">
+                <svg className="w-16 h-16 text-brand-500" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.161c-.18 1.897-.962 6.502-1.359 8.627-.168.9-.5 1.201-.82 1.23-.696.064-1.226-.461-1.901-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.781-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212-.07-.062-.174-.041-.249-.024-.106.024-1.793 1.14-5.061 3.345-.479.329-.913.489-1.302.481-.428-.008-1.252-.241-1.865-.44-.752-.244-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635.099-.002.321.023.465.14.118.095.151.223.167.312.017.09.038.297.021.459z"/>
+                </svg>
               </div>
-
-              <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium text-gray-700">
-                  {locale === 'ru' ? 'Пароль' : 'Parol'}
-                </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  minLength={8}
-                  className="h-12 w-full px-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors"
-                  placeholder={locale === 'ru' ? 'Пароль (минимум 8 символов)' : 'Parol (kamida 8 belgi)'}
-                />
-              </div>
-
-              <Button
-                type="submit"
-                disabled={loading}
-                className="w-full h-12 bg-brand-500 hover:bg-brand-600 text-white font-medium rounded-xl transition-colors disabled:opacity-50"
-              >
-                {loading 
-                  ? (locale === 'ru' ? 'Регистрация...' : 'Ro\'yxatdan o\'tilmoqda...') 
-                  : (locale === 'ru' ? 'Зарегистрироваться' : 'Ro\'yxatdan o\'tish')
+              
+              <p className="text-gray-700">
+                {locale === 'ru' 
+                  ? 'Для регистрации на платформе StudentDeals.uz необходимо пройти регистрацию через наш Telegram-бот. Это гарантирует безопасность и подтверждение вашего статуса студента.'
+                  : 'StudentDeals.uz platformasida ro\'yxatdan o\'tish uchun bizning Telegram-botimiz orqali ro\'yxatdan o\'tishingiz kerak. Bu xavfsizlikni va talaba maqomingizni tasdiqlashni ta\'minlaydi.'
                 }
-              </Button>
-            </form>
+              </p>
+            </div>
 
-            <div className="mt-6 text-center">
+            <a
+              href={TELEGRAM_BOT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block"
+            >
+              <Button
+                className="w-full h-12 bg-brand-500 hover:bg-brand-600 text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.161c-.18 1.897-.962 6.502-1.359 8.627-.168.9-.5 1.201-.82 1.23-.696.064-1.226-.461-1.901-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.781-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212-.07-.062-.174-.041-.249-.024-.106.024-1.793 1.14-5.061 3.345-.479.329-.913.489-1.302.481-.428-.008-1.252-.241-1.865-.44-.752-.244-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635.099-.002.321.023.465.14.118.095.151.223.167.312.017.09.038.297.021.459z"/>
+                </svg>
+                {locale === 'ru' ? 'Перейти в Telegram-бот' : 'Telegram-botga o\'tish'}
+              </Button>
+            </a>
+
+            <div className="text-center">
               <p className="text-sm text-gray-600">
                 {locale === 'ru' ? 'Уже есть аккаунт?' : 'Hisobingiz bormi?'}{' '}
                 <a 
@@ -165,6 +78,6 @@ export default function SignupPage() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

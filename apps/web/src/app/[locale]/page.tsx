@@ -5,6 +5,8 @@ import { CategoryCard } from '@/components/design-system/CategoryCard';
 import { DealCard, DealCardSkeleton } from '@/components/design-system/DealCard';
 import { Category, Offer } from '@/types';
 
+const TELEGRAM_BOT_URL = 'https://t.me/studentdeals_uz_bot';
+
 // Dynamic import for client components
 const SearchBar = dynamic(() => import('@/components/design-system/SearchBar').then(mod => ({ default: mod.SearchBar })), { 
   ssr: false,
@@ -252,12 +254,12 @@ export default function HomePage({ params }: HomePageProps) {
                   1
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-3">
-                  {locale === 'ru' ? 'Регистрация' : 'Ro\'yxatdan o\'tish'}
+                  {locale === 'ru' ? 'Регистрация через Telegram' : 'Telegram orqali ro\'yxatdan o\'tish'}
                 </h3>
                 <p className="text-gray-600">
                   {locale === 'ru' 
-                    ? 'Создайте бесплатный аккаунт и подтвердите свой студенческий статус' 
-                    : 'Bepul akkaunt yarating va talaba maqomingizni tasdiqlang'}
+                    ? 'Зарегистрируйтесь через наш Telegram-бот и подтвердите свой студенческий статус' 
+                    : 'Bizning Telegram-botimiz orqali ro\'yxatdan o\'ting va talaba maqomingizni tasdiqlang'}
                 </p>
               </div>
             </div>
@@ -355,12 +357,14 @@ export default function HomePage({ params }: HomePageProps) {
               : 'Biz bilan tejayotgan minglab talabalarga qo\'shiling!'}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href={`/${locale}/signup`}
+            <a
+              href={TELEGRAM_BOT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-brand-600 rounded-xl hover:bg-brand-50 transition-all duration-200 font-bold text-lg shadow-hard hover:shadow-medium"
             >
-              {locale === 'ru' ? 'Зарегистрироваться бесплатно' : 'Bepul ro\'yxatdan o\'tish'}
-            </Link>
+              {locale === 'ru' ? 'Зарегистрироваться через Telegram' : 'Telegram orqali ro\'yxatdan o\'tish'}
+            </a>
             <Link
               href={`/${locale}/deals`}
               className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl hover:bg-white hover:text-brand-600 transition-all duration-200 font-bold text-lg"
@@ -444,15 +448,17 @@ export default function HomePage({ params }: HomePageProps) {
                 ? 'Получите доступ к эксклюзивным скидкам от 500+ брендов' 
                 : '500+ brendlardan eksklyuziv chegirmalarga kirish huquqini oling'}
             </p>
-            <Link
-              href={`/${locale}/signup`}
+            <a
+              href={TELEGRAM_BOT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-brand-600 rounded-xl hover:bg-brand-50 transition-all duration-200 font-bold text-lg shadow-lg hover:shadow-xl hover:scale-105"
             >
-              {locale === 'ru' ? 'Зарегистрироваться' : 'Ro\'yxatdan o\'tish'}
+              {locale === 'ru' ? 'Зарегистрироваться через Telegram' : 'Telegram orqali ro\'yxatdan o\'tish'}
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
-            </Link>
+            </a>
           </div>
         </div>
       </section>

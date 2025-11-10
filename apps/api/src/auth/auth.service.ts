@@ -1,5 +1,5 @@
-import { Injectable, BadRequestException, UnauthorizedException, NotFoundException } from '@nestjs/common';
-// import { PrismaService } from '../prisma.service';
+import { Injectable, BadRequestException, UnauthorizedException, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { PrismaService } from '../prisma.service';
 import { MailerService } from '../mailer.service';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
@@ -8,13 +8,12 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { AuthTokens } from './types';
 
-// Temporary in-memory storage for development
-const users: Array<{ id: string; email: string; passwordHash: string; role: string; emailVerifiedAt: string | null; createdAt: string; updatedAt: string }> = [];
-const verificationTokens: Array<{ id: string; userId: string; token: string; expiresAt: string; usedAt: string | null }> = [];
-
 @Injectable()
 export class AuthService {
-  constructor(private mailerService: MailerService) {}
+  constructor(
+    private prisma: PrismaService,
+    private mailerService: MailerService,
+  ) {}
 
   private signAccessToken(userId: string, email: string, role: string): string {
     const secret = process.env.JWT_SECRET || 'dev_secret_change_me';
@@ -26,21 +25,21 @@ export class AuthService {
   }
 
   async register(dto: RegisterDto): Promise<{ id: string; email: string }> {
-    const exists = users.find(u => u.email.toLowerCase() === dto.email.toLowerCase());
+    const exists = await this.prisma.user.findUnique({
+      where: { email: dto.email.toLowerCase() },
+    });
     if (exists) throw new BadRequestException('Email already registered');
 
     const passwordHash = await bcrypt.hash(dto.password, 10);
-    const user = {
-      id: `user_${Date.now()}`,
-      email: dto.email.toLowerCase(),
-      passwordHash,
-      role: 'USER', // Default role
-      emailVerifiedAt: null,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    
-    users.push(user);
+    const user = await this.prisma.user.create({
+      data: {
+        email: dto.email.toLowerCase(),
+        passwordHash,
+        role: 'USER',
+        emailVerifiedAt: null,
+        telegramVerifiedAt: null, // Will be set by Telegram bot
+      },
+    });
 
     // Generate verification token
     const token = this.generateVerificationToken();
@@ -48,12 +47,13 @@ export class AuthService {
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + tokenTtlHours);
 
-    verificationTokens.push({
-      id: `token_${Date.now()}`,
-      userId: user.id,
-      token,
-      expiresAt: expiresAt.toISOString(),
-      usedAt: null,
+    await this.prisma.emailVerificationToken.create({
+      data: {
+        userId: user.id,
+        token,
+        expiresAt,
+        usedAt: null,
+      },
     });
 
     // Send verification email via Resend
@@ -68,57 +68,87 @@ export class AuthService {
   }
 
   async login(dto: LoginDto): Promise<AuthTokens> {
-    const user = users.find(u => u.email.toLowerCase() === dto.email.toLowerCase());
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email.toLowerCase() },
+    });
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
     const ok = await bcrypt.compare(dto.password, user.passwordHash);
     if (!ok) throw new UnauthorizedException('Invalid credentials');
+
+    // Check if user has completed Telegram bot registration
+    // Users can only log in if telegramVerifiedAt is set (not null)
+    if (!user.telegramVerifiedAt) {
+      throw new ForbiddenException({
+        error: 'TELEGRAM_REGISTRATION_REQUIRED',
+        message: 'Registration via Telegram bot is required before login',
+      });
+    }
 
     const accessToken = this.signAccessToken(user.id, user.email, user.role);
     return { accessToken };
   }
 
   async me(userId: string) {
-    const user = users.find(u => u.id === userId);
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        emailVerifiedAt: true,
+        telegramVerifiedAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
     if (!user) return null;
     
-    return {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      emailVerifiedAt: user.emailVerifiedAt,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    };
+    return user;
   }
 
   // Get all users (admin only)
   async getAllUsers() {
-    return users.map(u => ({
-      id: u.id,
-      email: u.email,
-      role: u.role,
-      emailVerifiedAt: u.emailVerifiedAt,
-      createdAt: u.createdAt,
-    }));
+    return this.prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        emailVerifiedAt: true,
+        telegramVerifiedAt: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
   // Search users by email (admin only)
   async searchUsers(query: string) {
     const lowerQuery = query.toLowerCase();
-    return users
-      .filter(u => u.email.toLowerCase().includes(lowerQuery))
-      .map(u => ({
-        id: u.id,
-        email: u.email,
-        role: u.role,
-        emailVerifiedAt: u.emailVerifiedAt,
-        createdAt: u.createdAt,
-      }));
+    return this.prisma.user.findMany({
+      where: {
+        email: {
+          contains: lowerQuery,
+          mode: 'insensitive',
+        },
+      },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        emailVerifiedAt: true,
+        telegramVerifiedAt: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
   async verifyEmail(token: string): Promise<{ success: boolean; message: string }> {
-    const verificationToken = verificationTokens.find(t => t.token === token);
+    const verificationToken = await this.prisma.emailVerificationToken.findUnique({
+      where: { token },
+      include: { user: true },
+    });
 
     if (!verificationToken) {
       throw new NotFoundException('Invalid verification token');
@@ -129,21 +159,21 @@ export class AuthService {
     }
 
     const now = new Date();
-    const expiresAt = new Date(verificationToken.expiresAt);
-
-    if (now > expiresAt) {
+    if (now > verificationToken.expiresAt) {
       throw new BadRequestException('Token expired');
     }
 
-    // Mark token as used
-    verificationToken.usedAt = now.toISOString();
-
-    // Update user email verification
-    const user = users.find(u => u.id === verificationToken.userId);
-    if (user) {
-      user.emailVerifiedAt = now.toISOString();
-      user.updatedAt = now.toISOString();
-    }
+    // Mark token as used and update user email verification
+    await this.prisma.$transaction([
+      this.prisma.emailVerificationToken.update({
+        where: { id: verificationToken.id },
+        data: { usedAt: now },
+      }),
+      this.prisma.user.update({
+        where: { id: verificationToken.userId },
+        data: { emailVerifiedAt: now },
+      }),
+    ]);
 
     return {
       success: true,

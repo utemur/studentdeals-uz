@@ -25,15 +25,28 @@ export async function api(path: string, init?: RequestInit) {
   if (!response.ok) {
     const errorText = await response.text();
     let errorMessage = `API Error: ${response.status} ${response.statusText}`;
+    let errorData: any = {};
     
     try {
       const errorJson = JSON.parse(errorText);
-      errorMessage = errorJson.message || errorMessage;
+      // NestJS returns { statusCode, message } for exceptions
+      // If message is an object with error property, extract it
+      if (errorJson.message && typeof errorJson.message === 'object' && errorJson.message.error) {
+        errorData = errorJson.message;
+        errorMessage = errorJson.message.message || errorJson.message.error || errorMessage;
+      } else {
+        errorMessage = errorJson.message || errorJson.error || errorMessage;
+        errorData = errorJson;
+      }
     } catch {
       errorMessage = errorText || errorMessage;
     }
     
-    throw new Error(errorMessage);
+    const error = new Error(errorMessage) as any;
+    error.status = response.status;
+    error.data = errorData;
+    error.response = { status: response.status, data: errorData };
+    throw error;
   }
 
   return response.json();

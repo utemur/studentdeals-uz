@@ -5,6 +5,8 @@ import { useSearchParams, useParams } from 'next/navigation';
 import { Container, Card, CardHeader, CardContent } from '@studentdeals/ui';
 import { api } from '@/lib/api';
 
+const TELEGRAM_BOT_URL = 'https://t.me/studentdeals_uz_bot';
+
 type VerificationStatus = 'loading' | 'success' | 'expired' | 'invalid' | 'error';
 
 function VerifyPageContent() {
@@ -19,12 +21,12 @@ function VerifyPageContent() {
   useEffect(() => {
     if (!token) {
       setStatus('invalid');
-      setMessage('Токен верификации не найден');
+      setMessage(locale === 'ru' ? 'Токен верификации не найден' : 'Tekshiruv tokeni topilmadi');
       return;
     }
 
     verifyEmail(token);
-  }, [token]);
+  }, [token, locale]);
 
   const verifyEmail = async (token: string) => {
     try {
@@ -34,17 +36,21 @@ function VerifyPageContent() {
       
       if (response.success) {
         setStatus('success');
-        setMessage(response.message || 'Email успешно подтверждён!');
+        setMessage(response.message || (locale === 'ru' ? 'Email успешно подтверждён!' : 'Email muvaffaqiyatli tasdiqlandi!'));
       }
     } catch (error: any) {
-      const errorMessage = error.message || 'Ошибка верификации';
+      const errorMessage = error.message || (locale === 'ru' ? 'Ошибка верификации' : 'Tekshiruv xatosi');
       
       if (errorMessage.includes('expired')) {
         setStatus('expired');
-        setMessage('Срок действия токена истёк. Пожалуйста, запросите новое письмо.');
+        setMessage(locale === 'ru' 
+          ? 'Срок действия токена истёк. Пожалуйста, запросите новое письмо.' 
+          : 'Token muddati tugadi. Iltimos, yangi xat so\'rang.');
       } else if (errorMessage.includes('Invalid') || errorMessage.includes('already used')) {
         setStatus('invalid');
-        setMessage('Недействительный токен или токен уже использован.');
+        setMessage(locale === 'ru' 
+          ? 'Недействительный токен или токен уже использован.' 
+          : 'Noto\'g\'ri token yoki token allaqachon ishlatilgan.');
       } else {
         setStatus('error');
         setMessage(errorMessage);
@@ -92,11 +98,11 @@ function VerifyPageContent() {
 
   const getStatusTitle = () => {
     switch (status) {
-      case 'loading': return 'Проверка токена...';
-      case 'success': return 'Email подтверждён!';
-      case 'expired': return 'Токен истёк';
-      case 'invalid': return 'Недействительный токен';
-      case 'error': return 'Ошибка верификации';
+      case 'loading': return locale === 'ru' ? 'Проверка токена...' : 'Token tekshirilmoqda...';
+      case 'success': return locale === 'ru' ? 'Email подтверждён!' : 'Email tasdiqlandi!';
+      case 'expired': return locale === 'ru' ? 'Токен истёк' : 'Token muddati tugadi';
+      case 'invalid': return locale === 'ru' ? 'Недействительный токен' : 'Noto\'g\'ri token';
+      case 'error': return locale === 'ru' ? 'Ошибка верификации' : 'Tekshiruv xatosi';
     }
   };
 
@@ -106,7 +112,7 @@ function VerifyPageContent() {
         <Card>
           <CardHeader>
             <h1 className="text-2xl font-bold text-gray-900 text-center">
-              Подтверждение email
+              {locale === 'ru' ? 'Подтверждение email' : 'Email tasdiqlash'}
             </h1>
           </CardHeader>
           <CardContent>
@@ -126,13 +132,13 @@ function VerifyPageContent() {
               {status === 'success' && (
                 <div className="text-center space-y-3">
                   <p className="text-sm text-gray-600">
-                    Теперь вы можете войти в свой аккаунт
+                    {locale === 'ru' ? 'Теперь вы можете войти в свой аккаунт' : 'Endi hisobingizga kirishingiz mumkin'}
                   </p>
                   <a
                     href={`/${locale}/signin`}
                     className="inline-block px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
                   >
-                    Войти в аккаунт
+                    {locale === 'ru' ? 'Войти в аккаунт' : 'Hisobga kirish'}
                   </a>
                 </div>
               )}
@@ -140,13 +146,15 @@ function VerifyPageContent() {
               {status === 'expired' && (
                 <div className="text-center space-y-3">
                   <p className="text-sm text-gray-600">
-                    Вы можете запросить новое письмо для подтверждения
+                    {locale === 'ru' 
+                      ? 'Вы можете запросить новое письмо для подтверждения' 
+                      : 'Tasdiqlash uchun yangi xat so\'rashingiz mumkin'}
                   </p>
                   <a
                     href={`/${locale}/signin`}
                     className="inline-block px-6 py-3 bg-yellow-600 text-white font-medium rounded-md hover:bg-yellow-700 transition-colors"
                   >
-                    Войти и запросить новое письмо
+                    {locale === 'ru' ? 'Войти и запросить новое письмо' : 'Kirish va yangi xat so\'rash'}
                   </a>
                 </div>
               )}
@@ -154,20 +162,24 @@ function VerifyPageContent() {
               {(status === 'invalid' || status === 'error') && (
                 <div className="text-center space-y-3">
                   <p className="text-sm text-gray-600">
-                    Пожалуйста, свяжитесь с поддержкой или попробуйте зарегистрироваться снова
+                    {locale === 'ru' 
+                      ? 'Пожалуйста, свяжитесь с поддержкой или попробуйте зарегистрироваться снова' 
+                      : 'Iltimos, qo\'llab-quvvatlash bilan bog\'laning yoki qayta ro\'yxatdan o\'tishni sinab ko\'ring'}
                   </p>
                   <div className="flex gap-3 justify-center">
                     <a
                       href={`/${locale}`}
                       className="inline-block px-6 py-3 bg-gray-600 text-white font-medium rounded-md hover:bg-gray-700 transition-colors"
                     >
-                      На главную
+                      {locale === 'ru' ? 'На главную' : 'Bosh sahifaga'}
                     </a>
                     <a
-                      href={`/${locale}/signup`}
+                      href={TELEGRAM_BOT_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="inline-block px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
                     >
-                      Регистрация
+                      {locale === 'ru' ? 'Зарегистрироваться через Telegram' : 'Telegram orqali ro\'yxatdan o\'tish'}
                     </a>
                   </div>
                 </div>
