@@ -1,0 +1,55 @@
+{
+  "Header": {
+    "tagline": "Talabalar uchun chegirmalar",
+    "searchPlaceholder": "Brendlar, mahsulotlar yoki toifalar",
+    "signIn": "Kirish",
+    "logout": "Chiqish",
+    "brands": "Brendlar",
+    "deals": "Chegirmalar"
+  },
+  "Home": {
+    "heroTitle": "O'zbekiston talabalari uchun eksklyuziv chegirmalar",
+    "heroSubtitle": "O'quv elektron pochtangizni tasdiqlang va tekshirilgan brendlardan chegirmalar oling.",
+    "cta": "Boshlash",
+    "featuredTitle": "Mashhur takliflar",
+    "browseAll": "Barchasini ko'rish"
+  },
+  "Categories": {
+    "ALL": "Barchasi",
+    "FOOD_DRINK": "Ovqat va ichimlik",
+    "FASHION": "Moda",
+    "TECH": "Texnika",
+    "TRAVEL": "Sayohat",
+    "BEAUTY_HEALTH": "Go'zallik va sog'liq",
+    "ENTERTAINMENT": "Ko'ngilochar",
+    "SERVICES": "Xizmatlar",
+    "OTHER": "Boshqa"
+  },
+  "Brands": {
+    "title": "Brendlar",
+    "empty": "Hozircha brendlar mavjud emas."
+  },
+  "Deals": {
+    "title": "Chegirmalar",
+    "empty": "Hozircha takliflar mavjud emas.",
+    "reveal": "Kodni ko'rsatish",
+    "yourCode": "Sizning kodingiz",
+    "signInToReveal": "Kodni ko'rish uchun kiring",
+    "terms": "Shartlar",
+    "error": "Nimadir xato ketdi. Qaytadan urinib ko'ring."
+  },
+  "SignIn": {
+    "title": "Kirish",
+    "subtitle": "Kirish havolasini olish uchun o'quv elektron pochtangizni (WIUT) kiriting.",
+    "emailLabel": "O'quv elektron pochta",
+    "submit": "Havolani yuborish",
+    "checkEmail": "Pochtangizni tekshiring — biz sizga kirish havolasini yubordik.",
+    "errorUnsupported": "Bu universitet hozircha qo'llab-quvvatlanmaydi. Hozircha faqat WIUT mavjud.",
+    "errorGeneric": "Nimadir xato ketdi. Qaytadan urinib ko'ring."
+  },
+  "Verify": {
+    "invalid": "Havola yaroqsiz.",
+    "expired": "Havolaning amal qilish muddati tugagan. Yangisini so'rang.",
+    "used": "Bu havoladan allaqachon foydalanilgan. Yangisini so'rang."
+  }
+}

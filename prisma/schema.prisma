@@ -1,0 +1,105 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Category {
+  FOOD_DRINK
+  FASHION
+  TECH
+  TRAVEL
+  BEAUTY_HEALTH
+  ENTERTAINMENT
+  SERVICES
+  OTHER
+}
+
+enum EventType {
+  SIGNUP_COMPLETED
+  CODE_REVEALED
+}
+
+/// A partner university whose email domain is accepted for verification.
+/// Pilot starts with a single row (WIUT); add more as the pilot expands.
+model University {
+  id        String   @id @default(cuid())
+  name      String
+  domain    String   @unique // e.g. "wiut.uz" — matched against the part of the email after "@"
+  isActive  Boolean  @default(true)
+  users     User[]
+  createdAt DateTime @default(now())
+}
+
+/// A verified student. Created on first successful magic-link verification.
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  universityId String
+  university   University @relation(fields: [universityId], references: [id])
+  verifiedAt   DateTime?
+  events       Event[]
+  createdAt    DateTime   @default(now())
+}
+
+/// Single-use tokens for the passwordless sign-in flow. We store a hash of
+/// the token, never the raw value — the raw token only ever exists in the
+/// emailed link.
+model MagicLinkToken {
+  id        String    @id @default(cuid())
+  email     String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([email])
+}
+
+model Brand {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  logoUrl     String?
+  category    Category
+  description String?
+  websiteUrl  String?
+  isActive    Boolean  @default(true)
+  deals       Deal[]
+  createdAt   DateTime @default(now())
+}
+
+/// A shared/generic discount code — the same code is shown to every
+/// verified student for a given deal (no per-user code inventory for v1).
+model Deal {
+  id            String   @id @default(cuid())
+  brandId       String
+  brand         Brand    @relation(fields: [brandId], references: [id])
+  title         String
+  description   String?
+  code          String
+  discountLabel String // short display label, e.g. "20% off"
+  termsText     String?
+  isActive      Boolean  @default(true)
+  events        Event[]
+  createdAt     DateTime @default(now())
+}
+
+/// Minimal usage log — just enough to answer "did the pilot work?"
+/// (verified signups, and how many times codes actually got revealed).
+model Event {
+  id        String    @id @default(cuid())
+  type      EventType
+  userId    String?
+  user      User?     @relation(fields: [userId], references: [id])
+  dealId    String?
+  deal      Deal?     @relation(fields: [dealId], references: [id])
+  metadata  Json?
+  createdAt DateTime  @default(now())
+
+  @@index([type, createdAt])
+}
