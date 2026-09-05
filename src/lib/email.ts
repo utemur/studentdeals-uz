@@ -21,10 +21,17 @@ export async function sendMagicLinkEmail(email: string, token: string) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
   const link = `${baseUrl}/api/auth/verify?token=${token}`;
 
-  await resend.emails.send({
+  // The Resend SDK returns { data, error } rather than throwing on API-level
+  // failures (e.g. an invalid key) — check it explicitly or a bad key fails
+  // silently and the caller thinks the email went out.
+  const { error } = await resend.emails.send({
     from: process.env.FROM_EMAIL ?? 'onboarding@resend.dev',
     to: email,
     subject: 'Ваша ссылка для входа в StudentDeals.uz',
     html: magicLinkHtml(link),
   });
+
+  if (error) {
+    throw new Error(`Resend failed to send magic link: ${error.message}`);
+  }
 }

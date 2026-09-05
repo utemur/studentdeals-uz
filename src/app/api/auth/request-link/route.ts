@@ -21,7 +21,13 @@ export async function POST(req: NextRequest) {
   }
 
   const token = await createMagicLinkToken(email);
-  await sendMagicLinkEmail(email, token);
+
+  try {
+    await sendMagicLinkEmail(email, token);
+  } catch (err) {
+    console.error('Failed to send magic link email:', err);
+    return NextResponse.json({ error: 'email_failed' }, { status: 502 });
+  }
 
   return NextResponse.json({ ok: true });
 }

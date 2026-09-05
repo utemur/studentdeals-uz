@@ -1,14 +1,6 @@
 import { PrismaClient, Category } from '@prisma/client';
-import { PrismaNeon } from '@prisma/adapter-neon';
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import ws from 'ws';
 
-// Same reasoning as src/lib/db.ts: query over HTTPS/WebSocket rather than
-// raw Postgres TCP, since that's blocked on some networks.
-neonConfig.webSocketConstructor = ws;
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaNeon(pool);
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient();
 
 async function main() {
   const wiut = await prisma.university.upsert({
